@@ -1,0 +1,16 @@
+{
+  "name": "fleet-management-demo",
+  "version": "1.0.0",
+  "description": "Fleet Management Demo",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
