@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Gestão de Frota (Design 4 - Tema Claro)</title>
+    <!-- Chosen Palette: White & Teal -->
+    <!-- Application Structure Plan: This fourth design is directly inspired by the user-provided image. It features a high-contrast dark theme, a compact icon-only sidebar, and a data-rich dashboard. The dashboard is structured with a top row for key performance indicators (KPIs) and a central area featuring a primary visualization (doughnut chart) surrounded by secondary data cards. This structure excels at presenting a holistic overview at a glance, which is ideal for a management dashboard. -->
+    <!-- Visualization & Content Choices: Info: KPI cards (HTML), Vehicle Status (Doughnut Chart - Chart.js), Vehicle/User Lists (HTML tables). Goal: To create a modern, high-impact dashboard that provides an immediate, clear overview of the fleet's status, closely mirroring the user's visual example. Method: The doughnut chart visualizes the distribution of vehicle statuses, a core metric. The KPI cards provide quick access to critical numbers. Interactions: Clicks on sidebar icons navigate between sections. Modals are used for data entry. Justification: This design moves beyond simple data lists to offer data synthesis and visualization, making the information more digestible and actionable, directly addressing the user's request for a more advanced look and feel. Library/Method: Vanilla JavaScript, Chart.js, and Tailwind CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .form-input {
+            @apply w-full mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition;
+        }
+        .nav-link.active {
+            @apply bg-teal-50 text-teal-600;
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            max-width: 450px;
+            margin: auto;
+        }
+        .tab-link.active {
+            @apply border-teal-500 text-teal-600;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <!-- =========== TELA DE LOGIN =========== -->
+    <div id="login-page" class="flex items-center justify-center h-screen bg-slate-100">
+        <div class="w-full max-w-sm text-center">
+            <h1 class="text-4xl font-bold text-teal-600 mb-2">Teste</h1>
+            <p class="text-slate-500 mb-8">Sistema de Gestão de Frota</p>
+            <div class="bg-white border border-slate-200/80 p-8 rounded-2xl shadow-lg text-center space-y-4">
+                 <h2 class="text-lg font-semibold text-center text-slate-800">Bem-vindo</h2>
+                <button id="login-button" class="w-full mt-4 px-4 py-2.5 font-semibold rounded-lg transition-colors text-sm bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-600/20 hover:shadow-md transform hover:-translate-y-px">
+                    Acessar Painel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========== APLICAÇÃO PRINCIPAL (PÓS-LOGIN) =========== -->
+    <div id="app" class="hidden h-screen flex">
+        <!-- Sidebar -->
+        <aside class="bg-white flex flex-col py-4 w-56 border-r border-slate-200">
+            <div class="h-16 flex items-center justify-center px-4">
+                <h1 class="text-2xl font-bold text-teal-600">Teste</h1>
+            </div>
+            <nav id="main-nav" class="mt-4 space-y-2 w-full px-2">
+                <a href="#dashboard" class="nav-link flex items-center h-12 px-4 rounded-lg text-slate-600 hover:bg-slate-100" title="Dashboard">
+                    <span>Dashboard</span>
+                </a>
+                <a href="#vehicles" class="nav-link flex items-center h-12 px-4 rounded-lg text-slate-600 hover:bg-slate-100" title="Veículos">
+                    <span>Veículos</span>
+                </a>
+                <a href="#users" class="nav-link flex items-center h-12 px-4 rounded-lg text-slate-600 hover:bg-slate-100" title="Usuários">
+                    <span>Usuários</span>
+                </a>
+            </nav>
+            <div class="mt-auto p-4">
+                <button id="logout-button" class="flex items-center justify-center w-full h-12 text-slate-500 hover:bg-slate-100 rounded-lg" title="Sair">
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white/80 backdrop-blur-lg border-b border-slate-200">
+                <div class="flex items-center justify-between h-16 px-6">
+                    <h2 id="page-title" class="text-xl font-semibold text-slate-800">Dashboard</h2>
+                    <div class="flex items-center">
+                        <span class="mr-3 hidden sm:inline text-sm text-slate-500">Admin Master</span>
+                        <div class="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-sm ring-2 ring-white">
+                            AM
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 p-6 overflow-y-auto bg-slate-100">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="page-section">
+                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white border border-slate-200/80 rounded-lg shadow-sm flex overflow-hidden">
+                            <div class="w-2 bg-blue-500"></div>
+                            <div class="p-5 flex-1">
+                                <p class="text-sm font-medium text-slate-500">Frota Total</p>
+                                <p id="stats-total-vehicles" class="text-4xl font-bold text-slate-900 mt-2">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-slate-200/80 rounded-lg shadow-sm flex overflow-hidden">
+                             <div class="w-2 bg-teal-500"></div>
+                            <div class="p-5 flex-1">
+                                <p class="text-sm font-medium text-slate-500">Veículos Ativos</p>
+                                <p id="stats-active-vehicles" class="text-4xl font-bold text-slate-900 mt-2">0</p>
+                            </div>
+                        </div>
+                         <div class="bg-white border border-slate-200/80 rounded-lg shadow-sm flex overflow-hidden">
+                            <div class="w-2 bg-orange-500"></div>
+                            <div class="p-5 flex-1">
+                                <p class="text-sm font-medium text-slate-500">Em Manutenção</p>
+                                <p id="stats-maintenance-vehicles" class="text-4xl font-bold text-slate-900 mt-2">0</p>
+                            </div>
+                        </div>
+                         <div class="bg-white border border-slate-200/80 rounded-lg shadow-sm flex overflow-hidden">
+                            <div class="w-2 bg-yellow-500"></div>
+                            <div class="p-5 flex-1">
+                                <p class="text-sm font-medium text-slate-500">OS Pendentes</p>
+                                <p id="stats-pending-os" class="text-4xl font-bold text-slate-900 mt-2">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <div class="bg-white border border-slate-200/80 rounded-xl shadow-sm p-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Status da Frota</h3>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Vehicles Section -->
+                <section id="vehicles-section" class="page-section hidden">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-semibold text-slate-800">Gerenciamento de Frota</h2>
+                        <button id="add-vehicle-button" class="px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-600/10">Adicionar Veículo</button>
+                    </div>
+                    <!-- Filtros de Veículos -->
+                    <div class="mb-5 p-4 bg-white border border-slate-200/80 rounded-xl shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="lg:col-span-2">
+                                <label for="search-filter" class="text-sm font-medium text-slate-600">Pesquisar</label>
+                                <input type="text" id="search-filter" placeholder="Marca, modelo, placa..." class="form-input w-full">
+                            </div>
+                            <div>
+                                <label for="status-filter" class="text-sm font-medium text-slate-600">Status</label>
+                                <select id="status-filter" class="form-input w-full">
+                                    <option value="">Todos</option>
+                                    <option>Ativo</option>
+                                    <option>Em Manutenção</option>
+                                    <option>Inativo</option>
+                                    <option>Vendido</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-4 font-semibold text-slate-600">Placa</th>
+                                        <th class="p-4 font-semibold text-slate-600">Modelo</th>
+                                        <th class="p-4 font-semibold text-slate-600">Marca</th>
+                                        <th class="p-4 font-semibold text-slate-600">Ano</th>
+                                        <th class="p-4 font-semibold text-slate-600">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vehicle-list" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                        <div id="no-vehicles" class="p-8 text-center text-slate-500 hidden">Nenhum veículo encontrado.</div>
+                    </div>
+                </section>
+                <!-- Users Section -->
+                <section id="users-section" class="page-section hidden">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-xl font-semibold text-slate-800">Gerenciamento de Usuários</h2>
+                        <button id="add-user-button" class="px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-600/10">Adicionar Usuário</button>
+                    </div>
+                    <div class="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-4 font-semibold text-slate-600">Nome</th>
+                                        <th class="p-4 font-semibold text-slate-600">Email</th>
+                                        <th class="p-4 font-semibold text-slate-600">Perfil</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-list" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                        <div id="no-users" class="p-8 text-center text-slate-500 hidden">Nenhum usuário cadastrado.</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    
+    <!-- =========== MODAIS =========== -->
+    <div id="modal-container">
+        <!-- Modal Adicionar Veículo -->
+        <div id="add-vehicle-modal" class="modal-backdrop fixed inset-0 bg-black/30 flex items-center justify-center p-4 hidden opacity-0 z-50">
+            <div class="modal-content bg-white border border-slate-200 w-full max-w-2xl rounded-xl shadow-2xl transform scale-95 opacity-0">
+                 <form id="add-vehicle-form" class="p-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-5">Adicionar Novo Veículo</h3>
+                    <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-3">
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="v-marca" class="block text-xs font-medium text-slate-500">Marca</label>
+                                <input type="text" id="v-marca" required class="form-input">
+                            </div>
+                            <div>
+                                <label for="v-modelo" class="block text-xs font-medium text-slate-500">Modelo</label>
+                                <input type="text" id="v-modelo" required class="form-input">
+                            </div>
+                             <div>
+                                <label for="v-ano" class="block text-xs font-medium text-slate-500">Ano</label>
+                                <input type="number" id="v-ano" required class="form-input">
+                            </div>
+                             <div>
+                                <label for="v-cor" class="block text-xs font-medium text-slate-500">Cor</label>
+                                <input type="text" id="v-cor" required class="form-input">
+                            </div>
+                             <div>
+                                <label for="v-placa" class="block text-xs font-medium text-slate-500">Placa</label>
+                                <input type="text" id="v-placa" required class="form-input">
+                            </div>
+                            <div>
+                                <label for="v-renavam" class="block text-xs font-medium text-slate-500">RENAVAM</label>
+                                <input type="number" id="v-renavam" required class="form-input">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="v-chassi" class="block text-xs font-medium text-slate-500">Chassi</label>
+                                <input type="text" id="v-chassi" required class="form-input">
+                            </div>
+                            <div>
+                                <label for="v-status" class="block text-xs font-medium text-slate-500">Status</label>
+                                <select id="v-status" required class="form-input">
+                                    <option>Ativo</option>
+                                    <option>Em Manutenção</option>
+                                    <option>Inativo</option>
+                                    <option>Vendido</option>
+                                </select>
+                            </div>
+                            <div>
+                               <label for="v-km" class="block text-xs font-medium text-slate-500">Quilometragem Atual</label>
+                                <input type="number" id="v-km" required class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
+                        <button type="button" class="modal-cancel-button px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-slate-100 text-slate-700 hover:bg-slate-200">Cancelar</button>
+                        <button type="submit" class="px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-600/10">Salvar Veículo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modal Adicionar Usuário -->
+         <div id="add-user-modal" class="modal-backdrop fixed inset-0 bg-black/30 flex items-center justify-center p-4 hidden opacity-0 z-50">
+            <div class="modal-content bg-white border border-slate-200 w-full max-w-md rounded-xl shadow-2xl transform scale-95 opacity-0">
+                 <form id="add-user-form" class="p-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-5">Adicionar Novo Usuário</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="u-nome" class="block text-xs font-medium text-slate-500">Nome Completo</label>
+                            <input type="text" id="u-nome" required class="form-input">
+                        </div>
+                        <div>
+                            <label for="u-email" class="block text-xs font-medium text-slate-500">Email</label>
+                            <input type="email" id="u-email" required class="form-input">
+                        </div>
+                        <div>
+                            <label for="u-senha" class="block text-xs font-medium text-slate-500">Senha</label>
+                            <input type="password" id="u-senha" required class="form-input">
+                        </div>
+                        <div>
+                            <label for="u-perfil" class="block text-xs font-medium text-slate-500">Perfil de Acesso</label>
+                            <select id="u-perfil" required class="form-input">
+                                <option>Master</option>
+                                <option>Avançado</option>
+                                <option>Solicitante</option>
+                                <option>Controle de OS</option>
+                            </select>
+                        </div>
+                    </div>
+                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
+                        <button type="button" class="modal-cancel-button px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-slate-100 text-slate-700 hover:bg-slate-200">Cancelar</button>
+                        <button type="submit" class="px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-teal-600 text-white hover:bg-teal-700 shadow-lg shadow-teal-600/10">Salvar Usuário</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    function App() {
+        // ======== DATA IN MEMORY ========
+        let vehicles = [
+            { 
+                marca: 'Volkswagen', modelo: 'Gol', ano: 2022, cor: 'Branco', placa: 'RKT-1A23', renavam: '12345678901', chassi: '9BWZZZ377VT123456', status: 'Ativo', km: 15000,
+                maintenanceHistory: [
+                    { date: '2023-05-10', type: 'Troca de Óleo', description: 'Troca de óleo do motor e filtro.', cost: 150.00, supplier: 'Oficina do Zé', os: 'OS-001' },
+                    { date: '2023-11-20', type: 'Alinhamento', description: 'Alinhamento e balanceamento.', cost: 80.00, supplier: 'Centro Automotivo Speed', os: 'OS-002' }
+                ],
+                fuelingHistory: [
+                    { date: '2023-12-01', liters: 40, totalCost: 220.00, station: 'Posto Shell' },
+                    { date: '2023-12-15', liters: 38.5, totalCost: 211.75, station: 'Posto Ipiranga' }
+                ]
+            },
+            { 
+                marca: 'Fiat', modelo: 'Strada', ano: 2023, cor: 'Prata', placa: 'BRZ-2B34', renavam: '12345678902', chassi: '9BDZZZ377VT123457', status: 'Ativo', km: 8000,
+                maintenanceHistory: [],
+                fuelingHistory: []
+            },
+            { 
+                marca: 'Chevrolet', modelo: 'Onix', ano: 2021, cor: 'Preto', placa: 'PBR-3C45', renavam: '12345678903', chassi: '9BGZZZ377VT123458', status: 'Em Manutenção', km: 32000,
+                maintenanceHistory: [ { date: '2024-01-05', type: 'Troca de Pneus', description: 'Troca dos 4 pneus.', cost: 1200.00, supplier: 'Pneu Forte', os: 'OS-003' } ],
+                fuelingHistory: []
+            },
+            { 
+                marca: 'Hyundai', modelo: 'HB20', ano: 2022, cor: 'Cinza', placa: 'ABC-4D56', renavam: '12345678904', chassi: '9BHZZZ377VT123459', status: 'Inativo', km: 21000,
+                maintenanceHistory: [],
+                fuelingHistory: []
+            },
+            { 
+                marca: 'Ford', modelo: 'Ranger', ano: 2020, cor: 'Azul', placa: 'XYZ-5E67', renavam: '12345678905', chassi: '9BFZZZ377VT123450', status: 'Ativo', km: 55000,
+                maintenanceHistory: [],
+                fuelingHistory: []
+            },
+        ];
+        let users = [
+            { nome: 'Admin Master', email: 'master@dcsys.com.br', perfil: 'Master' }
+        ];
+        let pendingOS = [
+            { tipo: 'Mecânica', status: 'Aguardando Orçamento'},
+            { tipo: 'Elétrica', status: 'Aguardando Aprovação'},
+            { tipo: 'Funilaria', status: 'Aguardando Orçamento'},
+            { tipo: 'Pneus', status: 'Aguardando Aprovação'},
+            { tipo: 'Mecânica', status: 'Aguardando Aprovação'},
+        ];
+
+        let statusChart = null;
+        let confirmCallback = null;
+
+        // ======== DOM ELEMENTS ========
+        const loginPage = document.getElementById('login-page');
+        const appPage = document.getElementById('app');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        
+        const pageTitle = document.getElementById('page-title');
+        
+        const addVehicleModal = document.getElementById('add-vehicle-modal');
+        const addUserModal = document.getElementById('add-user-modal');
+        const addVehicleButton = document.getElementById('add-vehicle-button');
+        const addUserButton = document.getElementById('add-user-button');
+        const modalCancelButtons = document.querySelectorAll('.modal-cancel-button');
+        
+        const addVehicleForm = document.getElementById('add-vehicle-form');
+        const addUserForm = document.getElementById('add-user-form');
+
+        const vehicleList = document.getElementById('vehicle-list');
+        const userList = document.getElementById('user-list');
+        const noVehiclesMsg = document.getElementById('no-vehicles');
+        const noUsersMsg = document.getElementById('no-users');
+        
+        // Stats
+        const statsTotalVehicles = document.getElementById('stats-total-vehicles');
+        const statsActiveVehicles = document.getElementById('stats-active-vehicles');
+        const statsMaintenanceVehicles = document.getElementById('stats-maintenance-vehicles');
+        const statsPendingOs = document.getElementById('stats-pending-os');
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        
+        // Filters
+        const searchFilterInput = document.getElementById('search-filter');
+        const statusFilterInput = document.getElementById('status-filter');
+        
+        // ======== RENDER FUNCTIONS ========
+        const updateDashboard = () => {
+            statsTotalVehicles.textContent = vehicles.length;
+            statsActiveVehicles.textContent = vehicles.filter(v => v.status === 'Ativo').length;
+            statsMaintenanceVehicles.textContent = vehicles.filter(v => v.status === 'Em Manutenção').length;
+            statsPendingOs.textContent = pendingOS.length;
+            updateStatusChart();
+        };
+
+        const updateStatusChart = () => {
+            const statusCounts = vehicles.reduce((acc, vehicle) => {
+                acc[vehicle.status] = (acc[vehicle.status] || 0) + 1;
+                return acc;
+            }, {});
+
+            const chartLabels = Object.keys(statusCounts);
+            const chartData = Object.values(statusCounts);
+            
+            const colors = {
+                'Ativo': 'rgba(13, 148, 136, 0.8)', // teal-600
+                'Em Manutenção': 'rgba(249, 115, 22, 0.8)', // orange-500
+                'Inativo': 'rgba(100, 116, 139, 0.8)', // slate-500
+                'Vendido': 'rgba(139, 92, 246, 0.8)', // violet-500
+            };
+            const backgroundColors = chartLabels.map(label => colors[label] || '#475569');
+
+            if (statusChart) {
+                statusChart.data.labels = chartLabels;
+                statusChart.data.datasets[0].data = chartData;
+                statusChart.data.datasets[0].backgroundColor = backgroundColors;
+                statusChart.update();
+            } else {
+                 statusChart = new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartLabels.length > 0 ? chartLabels : ['Sem Veículos'],
+                        datasets: [{
+                            data: chartData.length > 0 ? chartData : [1],
+                            backgroundColor: chartLabels.length > 0 ? backgroundColors : ['#e2e8f0'],
+                            borderColor: '#ffffff',
+                            borderWidth: 4,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#475569',
+                                    padding: 20,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        };
+
+        const renderVehicleList = () => {
+            const searchTerm = searchFilterInput.value.toLowerCase();
+            const statusTerm = statusFilterInput.value;
+
+            const filteredVehicles = vehicles.filter(v => {
+                const matchesSearch = v.marca.toLowerCase().includes(searchTerm) ||
+                                      v.modelo.toLowerCase().includes(searchTerm) ||
+                                      v.placa.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusTerm || v.status === statusTerm;
+                return matchesSearch && matchesStatus;
+            });
+
+            vehicleList.innerHTML = '';
+            if (filteredVehicles.length === 0) {
+                noVehiclesMsg.style.display = 'block';
+                vehicleList.style.display = 'none';
+            } else {
+                noVehiclesMsg.style.display = 'none';
+                vehicleList.style.display = 'table-row-group';
+                filteredVehicles.forEach(v => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50 cursor-pointer';
+                    row.dataset.placa = v.placa;
+                    row.innerHTML = `
+                        <td class="p-4 font-medium text-slate-800">${v.placa}</td>
+                        <td class="p-4 text-slate-600">${v.modelo}</td>
+                        <td class="p-4 text-slate-600">${v.marca}</td>
+                        <td class="p-4 text-slate-600">${v.ano}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${
+                            v.status === 'Ativo' ? 'bg-teal-100 text-teal-800' : 
+                            v.status === 'Em Manutenção' ? 'bg-orange-100 text-orange-800' :
+                            'bg-slate-100 text-slate-800'
+                        }">${v.status}</span></td>
+                    `;
+                });
+            }
+            updateDashboard();
+        };
+
+        const renderUserList = () => {
+            userList.innerHTML = '';
+            if (users.length === 0) {
+                noUsersMsg.style.display = 'block';
+            } else {
+                noUsersMsg.style.display = 'none';
+                users.forEach(u => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50';
+                    row.innerHTML = `
+                        <td class="p-4 font-medium text-slate-800">${u.nome}</td>
+                        <td class="p-4 text-slate-600">${u.email}</td>
+                        <td class="p-4 text-slate-600">${u.perfil}</td>
+                    `;
+                    userList.appendChild(row);
+                });
+            }
+        };
+
+        // ======== UI & NAVIGATION ========
+        const navigateTo = (pageId) => {
+            const titleMap = { 'dashboard': 'Dashboard', 'vehicles': 'Gerenciamento de Frota', 'users': 'Gerenciamento de Usuários' };
+            pageTitle.textContent = titleMap[pageId] || 'Dashboard';
+            
+            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
+            document.getElementById(`${pageId}-section`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === `#${pageId}`) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        };
+        
+        const openModal = (modal) => {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modal.querySelector('.modal-content').classList.add('opacity-100', 'scale-100');
+                modal.querySelector('.modal-content').classList.remove('opacity-0', 'scale-95');
+            }, 10);
+        };
+
+        const closeModal = (modal) => {
+            modal.querySelector('.modal-content').classList.remove('opacity-100', 'scale-100');
+            modal.querySelector('.modal-content').classList.add('opacity-0', 'scale-95');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                const form = modal.querySelector('form');
+                if (form) form.reset();
+            }, 300);
+        };
+        
+        // ======== EVENT LISTENERS SETUP ========
+        const setupEventListeners = () => {
+            document.body.addEventListener('click', (e) => {
+                const navLink = e.target.closest('.nav-link');
+                if (navLink) {
+                    e.preventDefault();
+                    navigateTo(navLink.getAttribute('href').substring(1));
+                    return;
+                }
+            });
+            
+            loginButton.addEventListener('click', () => {
+                loginPage.style.display = 'none';
+                appPage.style.display = 'flex';
+                navigateTo('dashboard');
+                renderVehicleList();
+                renderUserList();
+            });
+
+            logoutButton.addEventListener('click', () => {
+                appPage.style.display = 'none';
+                loginPage.style.display = 'flex';
+            });
+            
+            addVehicleButton.addEventListener('click', () => openModal(addVehicleModal));
+            addUserButton.addEventListener('click', () => openModal(addUserModal));
+            
+            modalCancelButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal-backdrop');
+                    closeModal(modal);
+                });
+            });
+
+            addVehicleForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newVehicle = {
+                    marca: document.getElementById('v-marca').value,
+                    modelo: document.getElementById('v-modelo').value,
+                    ano: document.getElementById('v-ano').value,
+                    cor: document.getElementById('v-cor').value,
+                    placa: document.getElementById('v-placa').value,
+                    renavam: document.getElementById('v-renavam').value,
+                    chassi: document.getElementById('v-chassi').value,
+                    status: document.getElementById('v-status').value,
+                    km: document.getElementById('v-km').value,
+                    maintenanceHistory: [],
+                    fuelingHistory: []
+                };
+                vehicles.push(newVehicle);
+                renderVehicleList();
+                closeModal(addVehicleModal);
+            });
+
+            addUserForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newUser = {
+                    nome: document.getElementById('u-nome').value,
+                    email: document.getElementById('u-email').value,
+                    perfil: document.getElementById('u-perfil').value,
+                };
+                users.push(newUser);
+                renderUserList();
+                closeModal(addUserModal);
+            });
+
+            searchFilterInput.addEventListener('input', renderVehicleList);
+            statusFilterInput.addEventListener('change', renderVehicleList);
+        };
+        
+        // ======== INITIALIZATION ========
+        setupEventListeners();
+        navigateTo('dashboard');
+        renderUserList();
+        renderVehicleList();
+    }
+
+    document.addEventListener('DOMContentLoaded', App);
+</script>
+
+</body>
+</html>
