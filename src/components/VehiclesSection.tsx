@@ -1,18 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Vehicle } from '../types';
+import EditVehicleModal from './EditVehicleModal'; // Import EditVehicleModal
 
 interface VehiclesSectionProps {
   vehicles: Vehicle[];
   onAddVehicle: () => void;
+  onEditVehicle: (updatedVehicleData: Vehicle) => void; // Add onEditVehicle to props
   // onFilterChange: (filters: any) => void;
 }
 
-const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicle }) => {
-  const noVehicles = vehicles.length === 0;
+const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicle, onEditVehicle }) => {
+  // const noVehicles = vehicles.length === 0; // This variable is not used, can be removed or kept
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
   // TODO: Implement filter state and logic
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
+  const handleOpenEditModal = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingVehicle(null);
+  };
+
+  // vehicleData from EditVehicleModal is VehicleFormData (all strings initially from form)
+  const handleSaveVehicle = (formDataFromModal: { [key: string]: string }) => {
+    if (!editingVehicle) {
+      console.error("VehiclesSection: editingVehicle is null, cannot save.");
+      return;
+    }
+
+    // Construct the updated vehicle, preserving id, and non-editable fields like history
+    const updatedVehicle: Vehicle = {
+      id: editingVehicle.id, // Crucial: keep original ID
+      marca: formDataFromModal.marca,
+      modelo: formDataFromModal.modelo,
+      ano: parseInt(formDataFromModal.ano, 10), // Convert string from form to number
+      cor: formDataFromModal.cor,
+      placa: formDataFromModal.placa,
+      renavam: formDataFromModal.renavam,
+      chassi: formDataFromModal.chassi,
+      status: formDataFromModal.status as Vehicle['status'], // Cast status to VehicleStatus type
+      km: parseInt(formDataFromModal.km, 10),   // Convert string from form to number
+      maintenanceHistory: editingVehicle.maintenanceHistory, // Preserve existing history
+      fuelingHistory: editingVehicle.fuelingHistory,       // Preserve existing history
+    };
+
+    onEditVehicle(updatedVehicle); // Call the handler passed from App.tsx
+    handleCloseEditModal();
+  };
 
   const filteredVehicles = vehicles.filter(v => {
     const matchesSearch = v.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,11 +118,12 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
                 <th className="p-4 font-semibold text-slate-600">Marca</th>
                 <th className="p-4 font-semibold text-slate-600">Ano</th>
                 <th className="p-4 font-semibold text-slate-600">Status</th>
+                <th className="p-4 font-semibold text-slate-600">Ações</th>
               </tr>
             </thead>
             <tbody id="vehicle-list" className="divide-y divide-slate-200">
               {filteredVehicles.map((v) => (
-                <tr key={v.id} className="hover:bg-slate-50 cursor-pointer">
+                <tr key={v.id} className="hover:bg-slate-50">
                   <td className="p-4 font-medium text-slate-800">{v.placa}</td>
                   <td className="p-4 text-slate-600">{v.modelo}</td>
                   <td className="p-4 text-slate-600">{v.marca}</td>
@@ -94,6 +137,14 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
                       {v.status}
                     </span>
                   </td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => handleOpenEditModal(v)}
+                      className="text-teal-600 hover:text-teal-800 font-medium text-xs py-1 px-2 rounded hover:bg-teal-50 transition-colors"
+                    >
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -105,6 +156,13 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
           </div>
         )}
       </div>
+
+      <EditVehicleModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveVehicle}
+        vehicleToEdit={editingVehicle}
+      />
     </section>
   );
 };

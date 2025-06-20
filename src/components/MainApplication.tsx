@@ -20,6 +20,7 @@ interface MainApplicationProps {
   // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
+  onEditVehicle: (updatedVehicleData: Vehicle) => void; // Add new prop for editing
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -31,7 +32,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   users,
   pendingOSCount,
   onOpenVehicleModal,
-  onOpenUserModal
+  onOpenUserModal,
+  onEditVehicle // Destructure the new prop
 }) => {
 
   const renderSection = () => {
@@ -51,6 +53,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           <VehiclesSection
             vehicles={vehicles}
             onAddVehicle={onOpenVehicleModal}
+            onEditVehicle={onEditVehicle} // Pass it down
             // onFilterChange will be added
           />
         );
