@@ -4,7 +4,8 @@ import Header from './Header';
 import DashboardSection from './DashboardSection';
 import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
-import { Vehicle, User, VehicleStatus } from '../types'; // Import VehicleStatus
+import SuppliersSection from './SuppliersSection'; // Import SuppliersSection
+import { Vehicle, User, VehicleStatus, Supplier } from '../types'; // Import Supplier
 
 interface MainApplicationProps {
   activeSection: string;
@@ -15,13 +16,15 @@ interface MainApplicationProps {
   // Data props
   vehicles: Vehicle[];
   users: User[];
+  suppliers: Supplier[]; // Add suppliers prop
   pendingOSCount: number;
 
   // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
+  onOpenSupplierModal: () => void; // Add supplier modal opener
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
-  onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void; // Add new prop
+  onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -31,11 +34,13 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onLogout,
   vehicles,
   users,
+  suppliers, // Destructure suppliers
   pendingOSCount,
   onOpenVehicleModal,
   onOpenUserModal,
+  onOpenSupplierModal, // Destructure supplier modal opener
   onEditVehicle,
-  onSetVehicleStatus // Destructure new prop
+  onSetVehicleStatus
 }) => {
 
   const renderSection = () => {
@@ -58,6 +63,15 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onEditVehicle={onEditVehicle}
             onSetVehicleStatus={onSetVehicleStatus} // Pass it down
             // onFilterChange will be added
+          />
+        );
+      case 'suppliers': // Add case for suppliers
+        return (
+          // <SuppliersSection
+          //   suppliers={suppliers}
+          <SuppliersSection
+            suppliers={suppliers}
+            onOpenAddSupplierModal={onOpenSupplierModal}
           />
         );
       case 'users':

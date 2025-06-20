@@ -10,6 +10,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onLogout, activeSection }
   const navItems = [
     { id: 'dashboard', title: 'Dashboard' },
     { id: 'vehicles', title: 'Veículos' },
+    { id: 'suppliers', title: 'Fornecedores' }, // Added new navigation item
     { id: 'users', title: 'Usuários' },
   ];
 

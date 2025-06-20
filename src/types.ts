@@ -60,3 +60,31 @@ export interface ChartData {
         hoverOffset?: number;
     }[];
 }
+
+// Supplier Types
+export const SUPPLIER_TYPES = [
+  "Oficina",
+  "Lanternagem",
+  "Abastecimento",
+  "Borracharia",
+  "Peças",
+  "Outros"
+] as const;
+
+export type SupplierTypeOption = typeof SUPPLIER_TYPES[number];
+
+export interface Supplier {
+  id: string;
+  nomeRazaoSocial: string;
+  nomeFantasia: string;
+  cnpjCpf: string;
+  tipoFornecedor: SupplierTypeOption[];
+  endereco: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  telefone: string;
+  email: string;
+  contatoPrincipal: string;
+  observacoes: string;
+}

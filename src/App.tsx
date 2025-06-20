@@ -3,7 +3,8 @@ import LoginPage from './components/LoginPage';
 import MainApplication from './components/MainApplication';
 import AddVehicleModal from './components/AddVehicleModal';
 import AddUserModal from './components/AddUserModal';
-import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile } from './types'; // Assuming types.ts is populated
+import AddSupplierModal from './components/AddSupplierModal'; // Import AddSupplierModal
+import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
@@ -33,13 +34,16 @@ function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [pendingOS, setPendingOS] = useState<PendingOSItem[]>(initialPendingOS);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]); // Add suppliers state
 
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false); // State for supplier modal
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
     'vehicles': 'Gerenciamento de Frota',
+    'suppliers': 'Gerenciamento de Fornecedores', // Added title for suppliers
     'users': 'Gerenciamento de Usuários'
   };
 
@@ -101,6 +105,15 @@ function App() {
     setIsUserModalOpen(false);
   };
 
+  const actualHandleAddSupplierLogic = (supplierData: Omit<Supplier, 'id'>) => {
+    const newSupplier: Supplier = {
+      id: `sup${suppliers.length + 1}`, // Simple ID generation
+      ...supplierData,
+    };
+    setSuppliers(prevSuppliers => [...prevSuppliers, newSupplier]);
+    setIsSupplierModalOpen(false); // Close modal on save
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -115,11 +128,18 @@ function App() {
         // Pass data and modal controls down
         vehicles={vehicles}
         users={users}
+        suppliers={suppliers} // Pass suppliers state
         pendingOSCount={pendingOS.length}
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
+        onOpenSupplierModal={() => setIsSupplierModalOpen(true)} // Pass handler to open modal
         onEditVehicle={handleEditVehicle}
-        onSetVehicleStatus={handleSetVehicleStatus} // Pass down the new status handler
+        onSetVehicleStatus={handleSetVehicleStatus}
+      />
+      <AddSupplierModal
+        isOpen={isSupplierModalOpen}
+        onClose={() => setIsSupplierModalOpen(false)}
+        onSave={actualHandleAddSupplierLogic}
       />
       <AddVehicleModal
         isOpen={isVehicleModalOpen}
