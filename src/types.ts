@@ -96,9 +96,10 @@ export interface Supplier {
 export const SERVICE_ORDER_STATUSES = [
   "Pendente de Orçamento",
   "Aguardando Aprovação",
-  "Aprovada - Aguardando Execução", // Added this line
+  "Aprovada - Aguardando Execução",
   "Em Andamento",
   "Concluída",
+  "Faturada", // Added new status
   "Cancelada"
 ] as const;
 
@@ -134,5 +135,11 @@ export interface ServiceOrder {
   cost?: number;
   notes?: string;
 
-  completionNotes?: string; // Added this line for RF015
+  completionNotes?: string;
+
+  // Fields for RF016: Invoicing
+  invoiceNumber?: string;
+  invoiceDueDate?: string;
+  finalValue?: number;
+  valueJustification?: string;
 }

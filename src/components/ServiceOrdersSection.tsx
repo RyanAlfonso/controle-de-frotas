@@ -9,7 +9,8 @@ interface ServiceOrdersSectionProps {
   onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
   onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
   onStartOSExecution: (serviceOrderId: string) => void;
-  onOpenCompleteOSModal: (serviceOrderId: string) => void; // Added new prop
+  onOpenCompleteOSModal: (serviceOrderId: string) => void;
+  onOpenInvoiceOSModal: (serviceOrderId: string) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
@@ -20,7 +21,8 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   onOpenAddOSBudgetModal,
   onOpenViewOSBudgetsModal,
   onStartOSExecution,
-  onOpenCompleteOSModal, // Destructure new prop
+  onOpenCompleteOSModal,
+  onOpenInvoiceOSModal, // Destructure new prop
 }) => {
   const noServiceOrders = serviceOrders.length === 0;
 
@@ -83,9 +85,10 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                       <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
                         order.status === 'Pendente de Orçamento' ? 'bg-yellow-100 text-yellow-800' :
                         order.status === 'Aguardando Aprovação' ? 'bg-blue-100 text-blue-800' :
-                        order.status === 'Aprovada - Aguardando Execução' ? 'bg-sky-100 text-sky-800' : // Added new status style
+                        order.status === 'Aprovada - Aguardando Execução' ? 'bg-sky-100 text-sky-800' :
                         order.status === 'Em Andamento' ? 'bg-indigo-100 text-indigo-800' :
                         order.status === 'Concluída' ? 'bg-green-100 text-green-800' :
+                        order.status === 'Faturada' ? 'bg-purple-100 text-purple-800' : // Added Faturada style
                         order.status === 'Cancelada' ? 'bg-red-100 text-red-800' :
                         'bg-gray-100 text-gray-800' // Fallback
                       }`}>
@@ -102,7 +105,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           Orçamento+
                         </button>
                       )}
-                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução', 'Em Andamento', 'Concluída'].includes(order.status)) && (
+                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução', 'Em Andamento', 'Concluída', 'Faturada'].includes(order.status)) && (
                         <button
                           onClick={() => onOpenViewOSBudgetsModal(order)}
                           title="Ver/Gerenciar Orçamentos"
@@ -127,6 +130,15 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-emerald-700 bg-emerald-100 hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1"
                         >
                           Concluir OS
+                        </button>
+                      )}
+                      {order.status === 'Concluída' && (
+                        <button
+                          onClick={() => onOpenInvoiceOSModal(order.id)}
+                          title="Registrar Faturamento da OS"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-cyan-700 bg-cyan-100 hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-1"
+                        >
+                          Faturar
                         </button>
                       )}
                     </td>

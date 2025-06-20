@@ -8,10 +8,11 @@ import EditSupplierModal from './components/EditSupplierModal';
 import AddServiceOrderModal from './components/AddServiceOrderModal';
 import AddOSBudgetModal from './components/AddOSBudgetModal';
 import ViewOSBudgetsModal from './components/ViewOSBudgetsModal';
-import CompleteOSModal from './components/CompleteOSModal'; // Import CompleteOSModal
+import CompleteOSModal from './components/CompleteOSModal';
+import InvoiceOSModal from './components/InvoiceOSModal'; // Import InvoiceOSModal
 import {
   Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
-  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem // Import MaintenanceHistoryItem
+  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem
 } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -144,8 +145,10 @@ function App() {
   const [currentServiceOrderForBudgetingId, setCurrentServiceOrderForBudgetingId] = useState<string | null>(null);
   const [isViewOSBudgetsModalOpen, setIsViewOSBudgetsModalOpen] = useState(false);
   const [currentServiceOrderForViewingBudgets, setCurrentServiceOrderForViewingBudgets] = useState<ServiceOrder | null>(null);
-  const [isCompleteOSModalOpen, setIsCompleteOSModalOpen] = useState(false); // State for CompleteOSModal
-  const [currentOSToComplete, setCurrentOSToComplete] = useState<ServiceOrder | null>(null); // State for OS to complete
+  const [isCompleteOSModalOpen, setIsCompleteOSModalOpen] = useState(false);
+  const [currentOSToComplete, setCurrentOSToComplete] = useState<ServiceOrder | null>(null);
+  const [isInvoiceOSModalOpen, setIsInvoiceOSModalOpen] = useState(false); // State for InvoiceOSModal
+  const [currentOSToInvoice, setCurrentOSToInvoice] = useState<ServiceOrder | null>(null); // State for OS to invoice
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -428,6 +431,57 @@ function App() {
     handleCloseCompleteOSModal(); // Close the modal
   };
 
+  const handleOpenInvoiceOSModalPlaceholder = (serviceOrderId: string) => {
+    console.log("Request to open Invoice OS Modal for OS ID:", serviceOrderId);
+    // Actual state and modal opening logic will be implemented in a later step
+  };
+
+  const handleOpenInvoiceOSModal = (serviceOrderId: string) => {
+    const orderToInvoice = serviceOrders.find(os => os.id === serviceOrderId);
+    if (orderToInvoice) {
+      setCurrentOSToInvoice(orderToInvoice);
+      setIsInvoiceOSModalOpen(true);
+    } else {
+      console.error("Service Order not found for invoicing:", serviceOrderId);
+    }
+  };
+
+  const handleCloseInvoiceOSModal = () => {
+    setCurrentOSToInvoice(null);
+    setIsInvoiceOSModalOpen(false);
+  };
+
+  const handleInvoiceOS = (invoiceData: {
+    invoiceNumber: string;
+    invoiceDueDate: string;
+    finalValue: number;
+    valueJustification?: string
+  }) => {
+    if (!currentOSToInvoice) {
+      console.error("Error: No service order selected for invoicing.");
+      return;
+    }
+
+    const osId = currentOSToInvoice.id;
+
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === osId) {
+          return {
+            ...order,
+            status: 'Faturada' as ServiceOrderStatus,
+            invoiceNumber: invoiceData.invoiceNumber,
+            invoiceDueDate: invoiceData.invoiceDueDate,
+            finalValue: invoiceData.finalValue,
+            valueJustification: invoiceData.valueJustification || order.valueJustification,
+          };
+        }
+        return order;
+      })
+    );
+    handleCloseInvoiceOSModal(); // Close the modal
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -453,7 +507,8 @@ function App() {
         onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal}
         onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal}
         onStartOSExecution={handleStartOSExecution}
-        onOpenCompleteOSModal={handleOpenCompleteOSModal} // Updated prop
+        onOpenCompleteOSModal={handleOpenCompleteOSModal}
+        onOpenInvoiceOSModal={handleOpenInvoiceOSModal} // Updated prop
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
@@ -504,6 +559,12 @@ function App() {
         onClose={handleCloseCompleteOSModal}
         onConfirmComplete={handleCompleteOS}
         serviceOrder={currentOSToComplete}
+      />
+      <InvoiceOSModal
+        isOpen={isInvoiceOSModalOpen}
+        onClose={handleCloseInvoiceOSModal}
+        onConfirmInvoice={handleInvoiceOS}
+        serviceOrder={currentOSToInvoice}
       />
     </>
   );
