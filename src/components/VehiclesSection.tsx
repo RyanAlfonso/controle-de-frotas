@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Vehicle } from '../types';
+import { Vehicle, VehicleStatus } from '../types'; // Import VehicleStatus
 import EditVehicleModal from './EditVehicleModal'; // Import EditVehicleModal
 
 interface VehiclesSectionProps {
@@ -29,8 +29,21 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
     setEditingVehicle(null);
   };
 
-  // vehicleData from EditVehicleModal is VehicleFormData (all strings initially from form)
-  const handleSaveVehicle = (formDataFromModal: { [key: string]: string }) => {
+  // Define a type for the form data received from EditVehicleModal
+  // This should match the structure of VehicleFormData in EditVehicleModal.tsx
+  type ModalVehicleFormData = {
+    marca: string;
+    modelo: string;
+    ano: string;
+    cor: string;
+    placa: string;
+    renavam: string;
+    chassi: string;
+    status: string; // Modal sends string, will be cast to VehicleStatus
+    km: string;
+  };
+
+  const handleSaveVehicle = (formDataFromModal: ModalVehicleFormData) => {
     if (!editingVehicle) {
       console.error("VehiclesSection: editingVehicle is null, cannot save.");
       return;
@@ -44,9 +57,9 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
       ano: parseInt(formDataFromModal.ano, 10), // Convert string from form to number
       cor: formDataFromModal.cor,
       placa: formDataFromModal.placa,
-      renavam: formDataFromModal.renavam,
+      renavam: formDataFromModal.renavam, // Assuming renavam is string in Vehicle type, if not, parse
       chassi: formDataFromModal.chassi,
-      status: formDataFromModal.status as Vehicle['status'], // Cast status to VehicleStatus type
+      status: formDataFromModal.status as VehicleStatus, // Cast status to VehicleStatus type
       km: parseInt(formDataFromModal.km, 10),   // Convert string from form to number
       maintenanceHistory: editingVehicle.maintenanceHistory, // Preserve existing history
       fuelingHistory: editingVehicle.fuelingHistory,       // Preserve existing history

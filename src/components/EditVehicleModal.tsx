@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { Vehicle } from '../types'; // Assuming types are defined
+import { Vehicle, VehicleStatus } from '../types'; // Import real types
 
 // Using VehicleFormData as a placeholder for Vehicle type based on existing code
 interface VehicleFormData {
@@ -14,14 +14,13 @@ interface VehicleFormData {
   km: string; // Or number
 }
 
-// Assuming Vehicle is similar to VehicleFormData for now
-type Vehicle = VehicleFormData;
+// type Vehicle = VehicleFormData; // Remove this local alias
 
 interface EditVehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (vehicleData: VehicleFormData) => void;
-  vehicleToEdit?: Vehicle | null;
+  onSave: (vehicleData: VehicleFormData) => void; // Stays as VehicleFormData
+  vehicleToEdit?: Vehicle | null; // Use imported Vehicle type
 }
 
 const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, onSave, vehicleToEdit }) => {
