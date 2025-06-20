@@ -28,7 +28,8 @@ interface MainApplicationProps {
   onOpenEditSupplierModal: (supplier: Supplier) => void;
   onOpenAddServiceOrderModal: () => void;
   onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
-  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void; // Added new prop for viewing budgets
+  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
+  onStartOSExecution: (serviceOrderId: string) => void; // Added new prop
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
   onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
@@ -50,7 +51,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onOpenEditSupplierModal,
   onOpenAddServiceOrderModal,
   onOpenAddOSBudgetModal,
-  onOpenViewOSBudgetsModal, // Destructure new prop
+  onOpenViewOSBudgetsModal,
+  onStartOSExecution, // Destructure new prop
   onEditVehicle,
   onSetVehicleStatus,
   onSetSupplierStatus
@@ -98,7 +100,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             users={users}
             onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
             onOpenAddOSBudgetModal={onOpenAddOSBudgetModal}
-            onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal} // Pass new prop
+            onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}
+            onStartOSExecution={onStartOSExecution} // Pass new prop
           />
         );
       case 'users':

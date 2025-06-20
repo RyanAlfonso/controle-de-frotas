@@ -7,7 +7,8 @@ interface ServiceOrdersSectionProps {
   users: User[];
   onOpenAddServiceOrderModal: () => void;
   onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
-  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void; // Added new prop
+  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
+  onStartOSExecution: (serviceOrderId: string) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
@@ -16,7 +17,8 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   users,
   onOpenAddServiceOrderModal,
   onOpenAddOSBudgetModal,
-  onOpenViewOSBudgetsModal, // Destructure new prop
+  onOpenViewOSBudgetsModal,
+  onStartOSExecution, // Destructure new prop
 }) => {
   const noServiceOrders = serviceOrders.length === 0;
 
@@ -98,13 +100,22 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           Orçamento+
                         </button>
                       )}
-                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução'].includes(order.status)) && (
+                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução', 'Em Andamento'].includes(order.status)) && (
                         <button
                           onClick={() => onOpenViewOSBudgetsModal(order)}
                           title="Ver/Gerenciar Orçamentos"
                           className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                         >
                           Ver Orçamentos
+                        </button>
+                      )}
+                      {order.status === 'Aprovada - Aguardando Execução' && (
+                        <button
+                          onClick={() => onStartOSExecution(order.id)}
+                          title="Iniciar Execução da OS"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
+                        >
+                          Iniciar Exec.
                         </button>
                       )}
                     </td>

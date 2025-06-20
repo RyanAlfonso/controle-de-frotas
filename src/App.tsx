@@ -341,6 +341,22 @@ function App() {
     handleCloseViewOSBudgetsModal(); // Close the modal after approval
   };
 
+  const handleStartOSExecution = (serviceOrderId: string) => {
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === serviceOrderId && order.status === 'Aprovada - Aguardando Execução') {
+          return {
+            ...order,
+            status: 'Em Andamento' as ServiceOrderStatus, // Corrected to use existing status "Em Andamento"
+            startDate: new Date().toISOString(), // Set current date as execution start date
+          };
+        }
+        return order;
+      })
+    );
+    // No modal to close for this direct action
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -364,7 +380,8 @@ function App() {
         onOpenEditSupplierModal={handleOpenEditSupplierModal}
         onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)}
         onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal}
-        onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal} // Updated prop
+        onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal}
+        onStartOSExecution={handleStartOSExecution} // Added this prop
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
