@@ -3,7 +3,8 @@ import LoginPage from './components/LoginPage';
 import MainApplication from './components/MainApplication';
 import AddVehicleModal from './components/AddVehicleModal';
 import AddUserModal from './components/AddUserModal';
-import AddSupplierModal from './components/AddSupplierModal'; // Import AddSupplierModal
+import AddSupplierModal from './components/AddSupplierModal';
+import EditSupplierModal from './components/EditSupplierModal'; // Import EditSupplierModal
 import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -100,7 +101,9 @@ function App() {
 
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false); // State for supplier modal
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
+  const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false); // State for EditSupplierModal
+  const [currentEditingSupplier, setCurrentEditingSupplier] = useState<Supplier | null>(null); // State for supplier being edited
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -176,6 +179,25 @@ function App() {
     setIsSupplierModalOpen(false); // Close modal on save
   };
 
+  const handleOpenEditSupplierModal = (supplier: Supplier) => {
+    setCurrentEditingSupplier(supplier);
+    setIsEditSupplierModalOpen(true);
+  };
+
+  const handleCloseEditSupplierModal = () => {
+    setCurrentEditingSupplier(null);
+    setIsEditSupplierModalOpen(false);
+  };
+
+  const handleEditSupplier = (updatedSupplierData: Supplier) => {
+    setSuppliers(prevSuppliers =>
+      prevSuppliers.map(supplier =>
+        supplier.id === updatedSupplierData.id ? updatedSupplierData : supplier
+      )
+    );
+    handleCloseEditSupplierModal(); // Close the modal after saving
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -194,7 +216,8 @@ function App() {
         pendingOSCount={pendingOS.length}
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
-        onOpenSupplierModal={() => setIsSupplierModalOpen(true)} // Pass handler to open modal
+        onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
+        onOpenEditSupplierModal={handleOpenEditSupplierModal} // Pass handler for opening edit modal
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
       />
@@ -212,6 +235,12 @@ function App() {
         isOpen={isUserModalOpen}
         onClose={() => setIsUserModalOpen(false)}
         onSave={handleSaveUser}
+      />
+      <EditSupplierModal
+        isOpen={isEditSupplierModalOpen}
+        onClose={handleCloseEditSupplierModal}
+        onSave={handleEditSupplier}
+        supplierToEdit={currentEditingSupplier}
       />
     </>
   );

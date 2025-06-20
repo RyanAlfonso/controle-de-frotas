@@ -22,7 +22,8 @@ interface MainApplicationProps {
   // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
-  onOpenSupplierModal: () => void; // Add supplier modal opener
+  onOpenSupplierModal: () => void;
+  onOpenEditSupplierModal: (supplier: Supplier) => void; // Added prop for editing supplier
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
 }
@@ -38,7 +39,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   pendingOSCount,
   onOpenVehicleModal,
   onOpenUserModal,
-  onOpenSupplierModal, // Destructure supplier modal opener
+  onOpenSupplierModal,
+  onOpenEditSupplierModal, // Destructure new prop
   onEditVehicle,
   onSetVehicleStatus
 }) => {
@@ -67,11 +69,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         );
       case 'suppliers': // Add case for suppliers
         return (
-          // <SuppliersSection
-          //   suppliers={suppliers}
           <SuppliersSection
             suppliers={suppliers}
             onOpenAddSupplierModal={onOpenSupplierModal}
+            onOpenEditSupplierModal={onOpenEditSupplierModal} // Pass new prop
           />
         );
       case 'users':

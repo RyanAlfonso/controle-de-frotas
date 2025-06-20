@@ -4,11 +4,13 @@ import { Supplier, SUPPLIER_TYPES, SupplierTypeOption } from '../types'; // Impo
 interface SuppliersSectionProps {
   suppliers: Supplier[];
   onOpenAddSupplierModal: () => void;
+  onOpenEditSupplierModal: (supplier: Supplier) => void; // Added new prop
 }
 
 const SuppliersSection: React.FC<SuppliersSectionProps> = ({
   suppliers,
   onOpenAddSupplierModal,
+  onOpenEditSupplierModal, // Destructure new prop
 }) => {
   // const noSuppliers = suppliers.length === 0; // Will use suppliers.length directly or filteredSuppliers.length
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,7 +103,15 @@ const SuppliersSection: React.FC<SuppliersSectionProps> = ({
                     <td className="p-4 text-slate-600">{supplier.tipoFornecedor.join(', ')}</td>
                     <td className="p-4 text-slate-600">{supplier.telefone}</td>
                     <td className="p-4 text-slate-600">{`${supplier.cidade}/${supplier.estado}`}</td>
-                    <td className="p-4 text-slate-600">{/* Actions placeholder */}</td>
+                    <td className="p-4 text-slate-600">
+                      <button
+                        onClick={() => onOpenEditSupplierModal(supplier)}
+                        className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1"
+                      >
+                        Editar
+                      </button>
+                      {/* Future Delete button will go here, likely next to Edit */}
+                    </td>
                   </tr>
                 ))}
               </tbody>
