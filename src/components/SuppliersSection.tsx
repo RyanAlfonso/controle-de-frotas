@@ -1,20 +1,48 @@
-import React, { useState } from 'react'; // Import useState
-import { Supplier, SUPPLIER_TYPES, SupplierTypeOption } from '../types'; // Import filter types
+import React, { useState } from 'react';
+import { Supplier, SUPPLIER_TYPES, SupplierTypeOption, SupplierStatus } from '../types'; // Import SupplierStatus
+import ConfirmDeleteSupplierModal from './ConfirmDeleteSupplierModal';
 
 interface SuppliersSectionProps {
   suppliers: Supplier[];
   onOpenAddSupplierModal: () => void;
-  onOpenEditSupplierModal: (supplier: Supplier) => void; // Added new prop
+  onOpenEditSupplierModal: (supplier: Supplier) => void;
+  onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void; // Added new prop
 }
 
 const SuppliersSection: React.FC<SuppliersSectionProps> = ({
   suppliers,
   onOpenAddSupplierModal,
-  onOpenEditSupplierModal, // Destructure new prop
+  onOpenEditSupplierModal,
+  onSetSupplierStatus, // Destructure new prop
 }) => {
   // const noSuppliers = suppliers.length === 0; // Will use suppliers.length directly or filteredSuppliers.length
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSupplierTypes, setSelectedSupplierTypes] = useState<SupplierTypeOption[]>([]);
+
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+  const [deletingSupplier, setDeletingSupplier] = useState<Supplier | null>(null);
+  const [deleteDependencyWarning, setDeleteDependencyWarning] = useState<string | undefined>(undefined);
+
+  const handleOpenConfirmDeleteModal = (supplier: Supplier) => {
+    setDeletingSupplier(supplier);
+    // Placeholder for dependency check logic
+    setDeleteDependencyWarning("Verifique as Ordens de Serviço associadas antes de inativar. Esta é uma mensagem de exemplo."); // Generic placeholder
+    setIsConfirmDeleteModalOpen(true);
+  };
+
+  const handleCloseConfirmDeleteModal = () => {
+    setIsConfirmDeleteModalOpen(false);
+    setDeletingSupplier(null);
+    setDeleteDependencyWarning(undefined);
+  };
+
+  const handleActualConfirmDelete = () => {
+    if (deletingSupplier && deletingSupplier.id) {
+      onSetSupplierStatus(deletingSupplier.id, "Inativo" as SupplierStatus);
+      // The 'as SupplierStatus' cast assumes "Inativo" is a valid member of SupplierStatus.
+    }
+    handleCloseConfirmDeleteModal();
+  };
 
   const filteredSuppliers = suppliers.filter(supplier => {
     // Filter by searchTerm (Nome/Razão Social or Nome Fantasia)
@@ -92,25 +120,42 @@ const SuppliersSection: React.FC<SuppliersSectionProps> = ({
                   <th className="p-4 font-semibold text-slate-600">Tipo(s)</th>
                   <th className="p-4 font-semibold text-slate-600">Telefone</th>
                   <th className="p-4 font-semibold text-slate-600">Cidade/Estado</th>
+                  <th className="p-4 font-semibold text-slate-600">Status</th> {/* Added Status header */}
                   <th className="p-4 font-semibold text-slate-600">Ações</th>
                 </tr>
               </thead>
               <tbody id="supplier-list" className="divide-y divide-slate-200">
                 {filteredSuppliers.map((supplier) => (
-                  <tr key={supplier.id} className="hover:bg-slate-50">
-                    <td className="p-4 font-medium text-slate-800">{supplier.nomeFantasia || supplier.nomeRazaoSocial}</td>
-                    <td className="p-4 text-slate-600">{supplier.cnpjCpf}</td>
-                    <td className="p-4 text-slate-600">{supplier.tipoFornecedor.join(', ')}</td>
-                    <td className="p-4 text-slate-600">{supplier.telefone}</td>
-                    <td className="p-4 text-slate-600">{`${supplier.cidade}/${supplier.estado}`}</td>
-                    <td className="p-4 text-slate-600">
+                  <tr key={supplier.id} className={`hover:bg-slate-100 ${supplier.status === 'Inativo' ? 'bg-slate-50 text-slate-500' : 'bg-white'}`}>
+                    <td className="p-4 font-medium">{supplier.nomeFantasia || supplier.nomeRazaoSocial}</td> {/* Removed text-slate-800 for inactive row style to take over */}
+                    <td className="p-4">{supplier.cnpjCpf}</td>
+                    <td className="p-4">{supplier.tipoFornecedor.join(', ')}</td>
+                    <td className="p-4">{supplier.telefone}</td>
+                    <td className="p-4">{`${supplier.cidade}/${supplier.estado}`}</td>
+                    <td className="p-4"> {/* Added Status cell */}
+                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                        supplier.status === 'Ativo' ? 'bg-teal-100 text-teal-800' :
+                        supplier.status === 'Inativo' ? 'bg-slate-200 text-slate-800' : // Slightly different Inactive badge
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {supplier.status}
+                      </span>
+                    </td>
+                    <td className="p-4 space-x-2"> {/* Added space-x-2 for button spacing */}
                       <button
                         onClick={() => onOpenEditSupplierModal(supplier)}
                         className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-sky-700 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1"
                       >
                         Editar
                       </button>
-                      {/* Future Delete button will go here, likely next to Edit */}
+                      {supplier.status === 'Ativo' && (
+                        <button
+                          onClick={() => handleOpenConfirmDeleteModal(supplier)}
+                          className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 ml-2"
+                        >
+                          Inativar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -123,6 +168,13 @@ const SuppliersSection: React.FC<SuppliersSectionProps> = ({
           Nenhum fornecedor encontrado com os filtros aplicados.
         </div>
       )}
+      <ConfirmDeleteSupplierModal
+        isOpen={isConfirmDeleteModalOpen}
+        onClose={handleCloseConfirmDeleteModal}
+        onConfirm={handleActualConfirmDelete}
+        supplierName={deletingSupplier ? `${deletingSupplier.nomeFantasia || deletingSupplier.nomeRazaoSocial} (${deletingSupplier.cnpjCpf || 'N/A'})` : ''}
+        dependencyWarningMessage={deleteDependencyWarning}
+      />
     </section>
   );
 };

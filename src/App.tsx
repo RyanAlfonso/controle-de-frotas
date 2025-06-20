@@ -4,8 +4,8 @@ import MainApplication from './components/MainApplication';
 import AddVehicleModal from './components/AddVehicleModal';
 import AddUserModal from './components/AddUserModal';
 import AddSupplierModal from './components/AddSupplierModal';
-import EditSupplierModal from './components/EditSupplierModal'; // Import EditSupplierModal
-import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier } from './types';
+import EditSupplierModal from './components/EditSupplierModal';
+import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus } from './types'; // Import SupplierStatus
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
@@ -40,7 +40,8 @@ const initialSuppliers: Supplier[] = [
     telefone: '(11) 98765-4321',
     email: 'contato@autorapido.com.br',
     contatoPrincipal: 'Carlos Alberto',
-    observacoes: 'Especialistas em motor e câmbio.'
+    observacoes: 'Especialistas em motor e câmbio.',
+    status: 'Ativo'
   },
   {
     id: 'sup2',
@@ -55,7 +56,8 @@ const initialSuppliers: Supplier[] = [
     telefone: '(21) 91234-5678',
     email: 'velozpneus@email.com',
     contatoPrincipal: 'Mariana Silva',
-    observacoes: 'Atendimento 24 horas para emergências.'
+    observacoes: 'Atendimento 24 horas para emergências.',
+    status: 'Ativo'
   },
   {
     id: 'sup3',
@@ -70,7 +72,8 @@ const initialSuppliers: Supplier[] = [
     telefone: '(31) 99999-8888',
     email: 'vendas@brasilpecas.com.br',
     contatoPrincipal: 'Fernando Costa',
-    observacoes: 'Amplo estoque de peças nacionais e importadas. Outros serviços: instalação de som.'
+    observacoes: 'Amplo estoque de peças nacionais e importadas. Outros serviços: instalação de som.',
+    status: 'Ativo'
   },
   {
     id: 'sup4',
@@ -85,7 +88,8 @@ const initialSuppliers: Supplier[] = [
     telefone: '(41) 98888-7777',
     email: 'gerencia@petrosol.com',
     contatoPrincipal: 'Ana Paula',
-    observacoes: 'Combustível de alta qualidade e loja de conveniência.'
+    observacoes: 'Combustível de alta qualidade e loja de conveniência.',
+    status: 'Ativo'
   }
 ];
 
@@ -174,6 +178,7 @@ function App() {
     const newSupplier: Supplier = {
       id: `sup${suppliers.length + 1}`, // Simple ID generation
       ...supplierData,
+      status: 'Ativo', // Ensure new suppliers default to 'Ativo'
     };
     setSuppliers(prevSuppliers => [...prevSuppliers, newSupplier]);
     setIsSupplierModalOpen(false); // Close modal on save
@@ -198,6 +203,14 @@ function App() {
     handleCloseEditSupplierModal(); // Close the modal after saving
   };
 
+  const handleSetSupplierStatus = (supplierId: string, status: SupplierStatus) => {
+    setSuppliers(prevSuppliers =>
+      prevSuppliers.map(supplier =>
+        supplier.id === supplierId ? { ...supplier, status: status } : supplier
+      )
+    );
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -217,9 +230,10 @@ function App() {
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
         onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
-        onOpenEditSupplierModal={handleOpenEditSupplierModal} // Pass handler for opening edit modal
+        onOpenEditSupplierModal={handleOpenEditSupplierModal}
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
+        onSetSupplierStatus={handleSetSupplierStatus} // Pass new handler
       />
       <AddSupplierModal
         isOpen={isSupplierModalOpen}

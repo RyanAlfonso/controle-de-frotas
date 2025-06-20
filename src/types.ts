@@ -73,6 +73,8 @@ export const SUPPLIER_TYPES = [
 
 export type SupplierTypeOption = typeof SUPPLIER_TYPES[number];
 
+export type SupplierStatus = "Ativo" | "Inativo"; // Added SupplierStatus
+
 export interface Supplier {
   id: string;
   nomeRazaoSocial: string;
@@ -87,4 +89,5 @@ export interface Supplier {
   email: string;
   contatoPrincipal: string;
   observacoes: string;
+  status: SupplierStatus; // Added status field
 }

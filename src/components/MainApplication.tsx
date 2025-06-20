@@ -4,8 +4,8 @@ import Header from './Header';
 import DashboardSection from './DashboardSection';
 import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
-import SuppliersSection from './SuppliersSection'; // Import SuppliersSection
-import { Vehicle, User, VehicleStatus, Supplier } from '../types'; // Import Supplier
+import SuppliersSection from './SuppliersSection';
+import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus } from '../types'; // Import SupplierStatus
 
 interface MainApplicationProps {
   activeSection: string;
@@ -23,9 +23,10 @@ interface MainApplicationProps {
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
   onOpenSupplierModal: () => void;
-  onOpenEditSupplierModal: (supplier: Supplier) => void; // Added prop for editing supplier
+  onOpenEditSupplierModal: (supplier: Supplier) => void;
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
+  onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void; // Add new prop
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -40,9 +41,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onOpenVehicleModal,
   onOpenUserModal,
   onOpenSupplierModal,
-  onOpenEditSupplierModal, // Destructure new prop
+  onOpenEditSupplierModal,
   onEditVehicle,
-  onSetVehicleStatus
+  onSetVehicleStatus,
+  onSetSupplierStatus // Destructure new prop
 }) => {
 
   const renderSection = () => {
@@ -72,7 +74,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           <SuppliersSection
             suppliers={suppliers}
             onOpenAddSupplierModal={onOpenSupplierModal}
-            onOpenEditSupplierModal={onOpenEditSupplierModal} // Pass new prop
+            onOpenEditSupplierModal={onOpenEditSupplierModal}
+            onSetSupplierStatus={onSetSupplierStatus} // Pass new prop
           />
         );
       case 'users':
