@@ -8,7 +8,8 @@ interface ServiceOrdersSectionProps {
   onOpenAddServiceOrderModal: () => void;
   onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
   onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
-  onStartOSExecution: (serviceOrderId: string) => void; // Added new prop
+  onStartOSExecution: (serviceOrderId: string) => void;
+  onOpenCompleteOSModal: (serviceOrderId: string) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
@@ -18,7 +19,8 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   onOpenAddServiceOrderModal,
   onOpenAddOSBudgetModal,
   onOpenViewOSBudgetsModal,
-  onStartOSExecution, // Destructure new prop
+  onStartOSExecution,
+  onOpenCompleteOSModal, // Destructure new prop
 }) => {
   const noServiceOrders = serviceOrders.length === 0;
 
@@ -100,7 +102,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           Orçamento+
                         </button>
                       )}
-                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução', 'Em Andamento'].includes(order.status)) && (
+                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução', 'Em Andamento', 'Concluída'].includes(order.status)) && (
                         <button
                           onClick={() => onOpenViewOSBudgetsModal(order)}
                           title="Ver/Gerenciar Orçamentos"
@@ -116,6 +118,15 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-purple-700 bg-purple-100 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1"
                         >
                           Iniciar Exec.
+                        </button>
+                      )}
+                      {order.status === 'Em Andamento' && (
+                        <button
+                          onClick={() => onOpenCompleteOSModal(order.id)}
+                          title="Concluir Ordem de Serviço"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-emerald-700 bg-emerald-100 hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1"
+                        >
+                          Concluir OS
                         </button>
                       )}
                     </td>

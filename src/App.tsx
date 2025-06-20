@@ -7,10 +7,11 @@ import AddSupplierModal from './components/AddSupplierModal';
 import EditSupplierModal from './components/EditSupplierModal';
 import AddServiceOrderModal from './components/AddServiceOrderModal';
 import AddOSBudgetModal from './components/AddOSBudgetModal';
-import ViewOSBudgetsModal from './components/ViewOSBudgetsModal'; // Import ViewOSBudgetsModal
+import ViewOSBudgetsModal from './components/ViewOSBudgetsModal';
+import CompleteOSModal from './components/CompleteOSModal'; // Import CompleteOSModal
 import {
   Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
-  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget
+  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem // Import MaintenanceHistoryItem
 } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -141,8 +142,10 @@ function App() {
   const [isAddServiceOrderModalOpen, setIsAddServiceOrderModalOpen] = useState(false);
   const [isAddOSBudgetModalOpen, setIsAddOSBudgetModalOpen] = useState(false);
   const [currentServiceOrderForBudgetingId, setCurrentServiceOrderForBudgetingId] = useState<string | null>(null);
-  const [isViewOSBudgetsModalOpen, setIsViewOSBudgetsModalOpen] = useState(false); // State for ViewOSBudgetsModal
-  const [currentServiceOrderForViewingBudgets, setCurrentServiceOrderForViewingBudgets] = useState<ServiceOrder | null>(null); // State for current OS for viewing budgets
+  const [isViewOSBudgetsModalOpen, setIsViewOSBudgetsModalOpen] = useState(false);
+  const [currentServiceOrderForViewingBudgets, setCurrentServiceOrderForViewingBudgets] = useState<ServiceOrder | null>(null);
+  const [isCompleteOSModalOpen, setIsCompleteOSModalOpen] = useState(false); // State for CompleteOSModal
+  const [currentOSToComplete, setCurrentOSToComplete] = useState<ServiceOrder | null>(null); // State for OS to complete
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -357,6 +360,74 @@ function App() {
     // No modal to close for this direct action
   };
 
+  const handleOpenCompleteOSModal = (serviceOrderId: string) => {
+    const orderToComplete = serviceOrders.find(os => os.id === serviceOrderId);
+    if (orderToComplete) {
+      setCurrentOSToComplete(orderToComplete);
+      setIsCompleteOSModalOpen(true);
+    } else {
+      console.error("Service Order not found for completion:", serviceOrderId);
+    }
+  };
+
+  const handleCloseCompleteOSModal = () => {
+    setCurrentOSToComplete(null);
+    setIsCompleteOSModalOpen(false);
+  };
+
+  const handleCompleteOS = (completionData: { completionDate: string; completionNotes?: string }) => {
+    if (!currentOSToComplete) {
+      console.error("Error: No service order selected for completion.");
+      return;
+    }
+
+    const osId = currentOSToComplete.id;
+    const vehicleId = currentOSToComplete.vehicleId;
+
+    // Update Service Order
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === osId) {
+          return {
+            ...order,
+            status: 'Concluída' as ServiceOrderStatus,
+            completionDate: completionData.completionDate,
+            completionNotes: completionData.completionNotes || order.completionNotes,
+          };
+        }
+        return order;
+      })
+    );
+
+    // Generate and Add Maintenance History Item to the Vehicle
+    const supplierForHistory = suppliers.find(s => s.id === currentOSToComplete.supplierId);
+    const supplierNameForHistory = supplierForHistory ? (supplierForHistory.nomeFantasia || supplierForHistory.nomeRazaoSocial) : 'Fornecedor não especificado';
+
+    const newMaintenanceItem: MaintenanceHistoryItem = {
+      // id will be generated if needed by a backend or a more robust local ID strategy
+      date: completionData.completionDate,
+      type: currentOSToComplete.serviceType,
+      description: `OS Concluída: ${currentOSToComplete.problemDescription}${completionData.completionNotes ? ` - Obs. Conclusão: ${completionData.completionNotes}` : ''}`,
+      cost: currentOSToComplete.cost || 0,
+      supplier: supplierNameForHistory,
+      os: osId,
+    };
+
+    setVehicles(prevVehicles =>
+      prevVehicles.map(vehicle => {
+        if (vehicle.id === vehicleId) {
+          return {
+            ...vehicle,
+            maintenanceHistory: [...vehicle.maintenanceHistory, newMaintenanceItem],
+          };
+        }
+        return vehicle;
+      })
+    );
+
+    handleCloseCompleteOSModal(); // Close the modal
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -381,7 +452,8 @@ function App() {
         onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)}
         onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal}
         onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal}
-        onStartOSExecution={handleStartOSExecution} // Added this prop
+        onStartOSExecution={handleStartOSExecution}
+        onOpenCompleteOSModal={handleOpenCompleteOSModal} // Updated prop
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
@@ -426,6 +498,12 @@ function App() {
         onApproveBudget={handleApproveOSBudget}
         suppliers={suppliers}
         vehicles={vehicles}
+      />
+      <CompleteOSModal
+        isOpen={isCompleteOSModalOpen}
+        onClose={handleCloseCompleteOSModal}
+        onConfirmComplete={handleCompleteOS}
+        serviceOrder={currentOSToComplete}
       />
     </>
   );

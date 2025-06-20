@@ -133,4 +133,6 @@ export interface ServiceOrder {
   supplierId?: string;
   cost?: number;
   notes?: string;
+
+  completionNotes?: string; // Added this line for RF015
 }
