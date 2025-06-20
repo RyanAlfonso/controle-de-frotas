@@ -96,6 +96,7 @@ export interface Supplier {
 export const SERVICE_ORDER_STATUSES = [
   "Pendente de Orçamento",
   "Aguardando Aprovação",
+  "Aprovada - Aguardando Execução", // Added this line
   "Em Andamento",
   "Concluída",
   "Cancelada"
@@ -104,11 +105,12 @@ export const SERVICE_ORDER_STATUSES = [
 export type ServiceOrderStatus = typeof SERVICE_ORDER_STATUSES[number];
 
 export interface ServiceOrderBudget {
-  id: string; // Unique ID for the budget entry itself
-  supplierId: string; // References Supplier.id
+  id: string;
+  supplierId: string;
   budgetValue: number;
-  estimatedDeadline: string; // e.g., "5 dias úteis", "24/12/2024"
-  budgetNotes?: string; // Optional notes for the budget
+  estimatedDeadline: string;
+  budgetNotes?: string;
+  isApproved?: boolean; // Added this line
 }
 
 export interface ServiceOrder {

@@ -6,7 +6,8 @@ interface ServiceOrdersSectionProps {
   vehicles: Vehicle[];
   users: User[];
   onOpenAddServiceOrderModal: () => void;
-  onOpenAddOSBudgetModal: (serviceOrderId: string) => void; // Added new prop
+  onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
+  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
@@ -14,7 +15,8 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   vehicles,
   users,
   onOpenAddServiceOrderModal,
-  onOpenAddOSBudgetModal, // Destructure new prop
+  onOpenAddOSBudgetModal,
+  onOpenViewOSBudgetsModal, // Destructure new prop
 }) => {
   const noServiceOrders = serviceOrders.length === 0;
 
@@ -77,6 +79,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                       <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
                         order.status === 'Pendente de Orçamento' ? 'bg-yellow-100 text-yellow-800' :
                         order.status === 'Aguardando Aprovação' ? 'bg-blue-100 text-blue-800' :
+                        order.status === 'Aprovada - Aguardando Execução' ? 'bg-sky-100 text-sky-800' : // Added new status style
                         order.status === 'Em Andamento' ? 'bg-indigo-100 text-indigo-800' :
                         order.status === 'Concluída' ? 'bg-green-100 text-green-800' :
                         order.status === 'Cancelada' ? 'bg-red-100 text-red-800' :
@@ -86,7 +89,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                       </span>
                     </td>
                     <td className="p-4 text-slate-600 space-x-1">
-                      {(order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && (
+                      {((order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && !order.budgets?.some(b => b.isApproved)) && (
                         <button
                           onClick={() => onOpenAddOSBudgetModal(order.id)}
                           title="Adicionar Orçamento"
@@ -95,7 +98,15 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           Orçamento+
                         </button>
                       )}
-                      {/* Placeholder for other action buttons like 'View Details' or 'Edit OS' */}
+                      {((order.budgets && order.budgets.length > 0) || ['Pendente de Orçamento', 'Aguardando Aprovação', 'Aprovada - Aguardando Execução'].includes(order.status)) && (
+                        <button
+                          onClick={() => onOpenViewOSBudgetsModal(order)}
+                          title="Ver/Gerenciar Orçamentos"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                        >
+                          Ver Orçamentos
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

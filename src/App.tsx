@@ -6,10 +6,11 @@ import AddUserModal from './components/AddUserModal';
 import AddSupplierModal from './components/AddSupplierModal';
 import EditSupplierModal from './components/EditSupplierModal';
 import AddServiceOrderModal from './components/AddServiceOrderModal';
-import AddOSBudgetModal from './components/AddOSBudgetModal'; // Import AddOSBudgetModal
+import AddOSBudgetModal from './components/AddOSBudgetModal';
+import ViewOSBudgetsModal from './components/ViewOSBudgetsModal'; // Import ViewOSBudgetsModal
 import {
   Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
-  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget // Import ServiceOrderBudget
+  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget
 } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -138,8 +139,10 @@ function App() {
   const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false);
   const [currentEditingSupplier, setCurrentEditingSupplier] = useState<Supplier | null>(null);
   const [isAddServiceOrderModalOpen, setIsAddServiceOrderModalOpen] = useState(false);
-  const [isAddOSBudgetModalOpen, setIsAddOSBudgetModalOpen] = useState(false); // State for AddOSBudgetModal
-  const [currentServiceOrderForBudgetingId, setCurrentServiceOrderForBudgetingId] = useState<string | null>(null); // State for current OS ID for budget
+  const [isAddOSBudgetModalOpen, setIsAddOSBudgetModalOpen] = useState(false);
+  const [currentServiceOrderForBudgetingId, setCurrentServiceOrderForBudgetingId] = useState<string | null>(null);
+  const [isViewOSBudgetsModalOpen, setIsViewOSBudgetsModalOpen] = useState(false); // State for ViewOSBudgetsModal
+  const [currentServiceOrderForViewingBudgets, setCurrentServiceOrderForViewingBudgets] = useState<ServiceOrder | null>(null); // State for current OS for viewing budgets
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -293,6 +296,51 @@ function App() {
     handleCloseAddOSBudgetModal(); // Close the modal after saving
   };
 
+  const handleOpenViewOSBudgetsModal = (serviceOrder: ServiceOrder) => {
+    setCurrentServiceOrderForViewingBudgets(serviceOrder);
+    setIsViewOSBudgetsModalOpen(true);
+  };
+
+  const handleCloseViewOSBudgetsModal = () => {
+    setCurrentServiceOrderForViewingBudgets(null);
+    setIsViewOSBudgetsModalOpen(false);
+  };
+
+  const handleApproveOSBudget = (budgetId: string) => {
+    if (!currentServiceOrderForViewingBudgets) {
+      console.error("Error: No service order context for approving budget.");
+      return;
+    }
+
+    const osId = currentServiceOrderForViewingBudgets.id;
+    let approvedSupplierId: string | undefined = undefined;
+    let approvedBudgetValue: number | undefined = undefined;
+
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === osId) {
+          const updatedBudgets = order.budgets?.map(budget => {
+            if (budget.id === budgetId) {
+              approvedSupplierId = budget.supplierId;
+              approvedBudgetValue = budget.budgetValue;
+              return { ...budget, isApproved: true };
+            }
+            return { ...budget, isApproved: false }; // Ensure others are not approved
+          });
+          return {
+            ...order,
+            budgets: updatedBudgets || [],
+            status: 'Aprovada - Aguardando Execução' as ServiceOrderStatus,
+            supplierId: approvedSupplierId || order.supplierId,
+            cost: approvedBudgetValue || order.cost,
+          };
+        }
+        return order;
+      })
+    );
+    handleCloseViewOSBudgetsModal(); // Close the modal after approval
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -314,8 +362,9 @@ function App() {
         onOpenUserModal={() => setIsUserModalOpen(true)}
         onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
         onOpenEditSupplierModal={handleOpenEditSupplierModal}
-        onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)} // For creating OS
-        onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal} // For adding budget to OS
+        onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)}
+        onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal}
+        onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal} // Updated prop
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
@@ -352,6 +401,14 @@ function App() {
         onClose={handleCloseAddOSBudgetModal}
         onSave={handleAddOSBudget}
         suppliers={suppliers}
+      />
+      <ViewOSBudgetsModal
+        isOpen={isViewOSBudgetsModalOpen}
+        onClose={handleCloseViewOSBudgetsModal}
+        serviceOrder={currentServiceOrderForViewingBudgets}
+        onApproveBudget={handleApproveOSBudget}
+        suppliers={suppliers}
+        vehicles={vehicles}
       />
     </>
   );
