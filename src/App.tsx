@@ -245,16 +245,11 @@ function App() {
     // The original prompt had: & { vehicleId: string }, but this is implicit if not omitted.
   ) => {
     const newServiceOrder: ServiceOrder = {
-      id: `os${serviceOrders.length + 1 + Math.random().toString(36).substring(2, 7)}`, // More unique ID
-      vehicleId: orderData.vehicleId, // Ensure vehicleId is present in orderData
-      serviceType: orderData.serviceType,
-      problemDescription: orderData.problemDescription,
-      requestDate: new Date().toISOString(), // Automatic
-      requesterId: 'user_placeholder_id_123', // Placeholder - needs actual logged-in user ID logic
-      status: 'Pendente de Orçamento' as ServiceOrderStatus, // Initial status
-      // Optional fields like budgetDetails, approvalDate, etc., will be undefined initially from orderData
-      // or explicitly set if they are part of orderData's type.
-      ...orderData, // Spread remaining fields from orderData, like supplierId if provided by form
+      ...orderData, // Spread orderData first. This includes vehicleId, serviceType, problemDescription, and other optionals.
+      id: `os${serviceOrders.length + 1 + Math.random().toString(36).substring(2, 7)}`,
+      requestDate: new Date().toISOString(),
+      requesterId: 'user_placeholder_id_123',
+      status: 'Pendente de Orçamento' as ServiceOrderStatus,
     };
     setServiceOrders(prevServiceOrders => [...prevServiceOrders, newServiceOrder]);
     setIsAddServiceOrderModalOpen(false); // Close modal on save
