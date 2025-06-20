@@ -5,7 +5,11 @@ import AddVehicleModal from './components/AddVehicleModal';
 import AddUserModal from './components/AddUserModal';
 import AddSupplierModal from './components/AddSupplierModal';
 import EditSupplierModal from './components/EditSupplierModal';
-import { Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus } from './types'; // Import SupplierStatus
+import AddServiceOrderModal from './components/AddServiceOrderModal'; // Import AddServiceOrderModal
+import {
+  Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
+  ServiceOrder, ServiceOrderStatus
+} from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
@@ -93,6 +97,27 @@ const initialSuppliers: Supplier[] = [
   }
 ];
 
+const initialServiceOrders: ServiceOrder[] = [
+  {
+    id: 'os_sample_1',
+    vehicleId: 'v1',
+    serviceType: 'Revisão Completa',
+    problemDescription: 'Veículo com barulho estranho no motor e falha na aceleração. Realizar diagnóstico completo e orçamento.',
+    requestDate: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+    requesterId: 'user_placeholder_id_123',
+    status: 'Pendente de Orçamento'
+  },
+  {
+    id: 'os_sample_2',
+    vehicleId: 'v2',
+    serviceType: 'Troca de Pneu',
+    problemDescription: 'Pneu dianteiro direito furado. Necessita troca e verificação do estepe.',
+    requestDate: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
+    requesterId: 'user_placeholder_id_456',
+    status: 'Aguardando Aprovação'
+  }
+];
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeSection, setActiveSection] = useState('dashboard'); // Default section after login
@@ -100,19 +125,22 @@ function App() {
 
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [users, setUsers] = useState<User[]>(initialUsers);
-  const [pendingOS, setPendingOS] = useState<PendingOSItem[]>(initialPendingOS);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers); // Use initialSuppliers
+  const [pendingOS, setPendingOS] = useState<PendingOSItem[]>(initialPendingOS); // This might be replaced by serviceOrders later
+  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
+  const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>(initialServiceOrders); // Add serviceOrders state
 
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-  const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false); // State for EditSupplierModal
-  const [currentEditingSupplier, setCurrentEditingSupplier] = useState<Supplier | null>(null); // State for supplier being edited
+  const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false);
+  const [currentEditingSupplier, setCurrentEditingSupplier] = useState<Supplier | null>(null);
+  const [isAddServiceOrderModalOpen, setIsAddServiceOrderModalOpen] = useState(false); // State for AddServiceOrderModal
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
     'vehicles': 'Gerenciamento de Frota',
-    'suppliers': 'Gerenciamento de Fornecedores', // Added title for suppliers
+    'suppliers': 'Gerenciamento de Fornecedores',
+    'serviceOrders': 'Gerenciamento de Ordens de Serviço', // Added title for service orders
     'users': 'Gerenciamento de Usuários'
   };
 
@@ -211,6 +239,27 @@ function App() {
     );
   };
 
+  const handleAddServiceOrder = (
+    orderData: Omit<ServiceOrder, 'id' | 'requestDate' | 'requesterId' | 'status'>
+    // vehicleId is part of ServiceOrder, so it's expected in orderData if not omitted.
+    // The original prompt had: & { vehicleId: string }, but this is implicit if not omitted.
+  ) => {
+    const newServiceOrder: ServiceOrder = {
+      id: `os${serviceOrders.length + 1 + Math.random().toString(36).substring(2, 7)}`, // More unique ID
+      vehicleId: orderData.vehicleId, // Ensure vehicleId is present in orderData
+      serviceType: orderData.serviceType,
+      problemDescription: orderData.problemDescription,
+      requestDate: new Date().toISOString(), // Automatic
+      requesterId: 'user_placeholder_id_123', // Placeholder - needs actual logged-in user ID logic
+      status: 'Pendente de Orçamento' as ServiceOrderStatus, // Initial status
+      // Optional fields like budgetDetails, approvalDate, etc., will be undefined initially from orderData
+      // or explicitly set if they are part of orderData's type.
+      ...orderData, // Spread remaining fields from orderData, like supplierId if provided by form
+    };
+    setServiceOrders(prevServiceOrders => [...prevServiceOrders, newServiceOrder]);
+    setIsAddServiceOrderModalOpen(false); // Close modal on save
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -223,17 +272,25 @@ function App() {
         pageTitle={pageTitle}
         onLogout={handleLogout}
         // Pass data and modal controls down
-        vehicles={vehicles}
+        vehicles={vehicles} // Pass vehicles for AddServiceOrderModal
         users={users}
-        suppliers={suppliers} // Pass suppliers state
-        pendingOSCount={pendingOS.length}
+        suppliers={suppliers}
+        serviceOrders={serviceOrders} // Pass serviceOrders
+        pendingOSCount={pendingOS.length} // This might be derived from serviceOrders later
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
         onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
         onOpenEditSupplierModal={handleOpenEditSupplierModal}
+        onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)} // Pass handler for AddServiceOrderModal
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
-        onSetSupplierStatus={handleSetSupplierStatus} // Pass new handler
+        onSetSupplierStatus={handleSetSupplierStatus}
+      />
+      <AddServiceOrderModal
+        isOpen={isAddServiceOrderModalOpen}
+        onClose={() => setIsAddServiceOrderModalOpen(false)}
+        onSave={handleAddServiceOrder}
+        vehicles={vehicles}
       />
       <AddSupplierModal
         isOpen={isSupplierModalOpen}

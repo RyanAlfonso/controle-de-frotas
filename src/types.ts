@@ -91,3 +91,33 @@ export interface Supplier {
   observacoes: string;
   status: SupplierStatus; // Added status field
 }
+
+// Service Order Types
+export const SERVICE_ORDER_STATUSES = [
+  "Pendente de Orçamento",
+  "Aguardando Aprovação",
+  "Em Andamento",
+  "Concluída",
+  "Cancelada"
+] as const;
+
+export type ServiceOrderStatus = typeof SERVICE_ORDER_STATUSES[number];
+
+export interface ServiceOrder {
+  id: string;
+  vehicleId: string;
+  serviceType: string;
+  problemDescription: string;
+  requestDate: string;
+  requesterId: string;
+  status: ServiceOrderStatus;
+
+  budgetDetails?: string;
+  approvalDate?: string;
+  approvedByUserId?: string;
+  startDate?: string;
+  completionDate?: string;
+  supplierId?: string;
+  cost?: number;
+  notes?: string;
+}

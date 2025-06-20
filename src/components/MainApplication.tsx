@@ -5,7 +5,8 @@ import DashboardSection from './DashboardSection';
 import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
 import SuppliersSection from './SuppliersSection';
-import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus } from '../types'; // Import SupplierStatus
+import ServiceOrdersSection from './ServiceOrdersSection'; // Import ServiceOrdersSection
+import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus, ServiceOrder } from '../types';
 
 interface MainApplicationProps {
   activeSection: string;
@@ -14,9 +15,10 @@ interface MainApplicationProps {
   onLogout: () => void;
 
   // Data props
-  vehicles: Vehicle[];
+  vehicles: Vehicle[]; // Already present, ensure it's passed for OS modal
   users: User[];
-  suppliers: Supplier[]; // Add suppliers prop
+  suppliers: Supplier[];
+  serviceOrders: ServiceOrder[]; // Add serviceOrders prop
   pendingOSCount: number;
 
   // Modal control props
@@ -24,9 +26,10 @@ interface MainApplicationProps {
   onOpenUserModal: () => void;
   onOpenSupplierModal: () => void;
   onOpenEditSupplierModal: (supplier: Supplier) => void;
+  onOpenAddServiceOrderModal: () => void; // Add service order modal opener
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
-  onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void; // Add new prop
+  onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -36,15 +39,17 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onLogout,
   vehicles,
   users,
-  suppliers, // Destructure suppliers
+  suppliers,
+  serviceOrders, // Destructure serviceOrders
   pendingOSCount,
   onOpenVehicleModal,
   onOpenUserModal,
   onOpenSupplierModal,
   onOpenEditSupplierModal,
+  onOpenAddServiceOrderModal, // Destructure service order modal opener
   onEditVehicle,
   onSetVehicleStatus,
-  onSetSupplierStatus // Destructure new prop
+  onSetSupplierStatus
 }) => {
 
   const renderSection = () => {
@@ -75,7 +80,19 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             suppliers={suppliers}
             onOpenAddSupplierModal={onOpenSupplierModal}
             onOpenEditSupplierModal={onOpenEditSupplierModal}
-            onSetSupplierStatus={onSetSupplierStatus} // Pass new prop
+            onSetSupplierStatus={onSetSupplierStatus}
+          />
+        );
+      case 'serviceOrders': // Add case for service orders
+        return (
+          // <ServiceOrdersSection
+          //   serviceOrders={serviceOrders}
+          //   vehicles={vehicles}
+          <ServiceOrdersSection
+            serviceOrders={serviceOrders}
+            vehicles={vehicles}
+            users={users}
+            onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
           />
         );
       case 'users':
