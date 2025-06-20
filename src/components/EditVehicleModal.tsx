@@ -180,7 +180,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                           {item.cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </td>
                         <td className="p-3 text-slate-600">{item.supplier}</td>
-                        <td className="p-3 text-slate-600">{item.serviceOrderNumber}</td>
+                        <td className="p-3 text-slate-600">{item.os}</td>
                       </tr>
                     ))}
                   </tbody>

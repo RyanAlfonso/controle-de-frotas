@@ -16,7 +16,7 @@ const initialRecordData: MaintenanceRecordFormData = {
   description: '',
   cost: 0,
   supplier: '',
-  serviceOrderNumber: '', // Corresponds to 'os' in the requirement
+  os: '', // Changed from serviceOrderNumber
 };
 
 const AddMaintenanceRecordModal: React.FC<AddMaintenanceRecordModalProps> = ({
@@ -125,11 +125,11 @@ const AddMaintenanceRecordModal: React.FC<AddMaintenanceRecordModalProps> = ({
             </div>
 
             <div>
-              <label htmlFor="serviceOrderNumber" className="block text-xs font-medium text-slate-500">Número da OS / Nota Fiscal</label>
+              <label htmlFor="os" className="block text-xs font-medium text-slate-500">Número da OS / Nota Fiscal</label>
               <input
                 type="text"
-                id="serviceOrderNumber" // Matches MaintenanceHistoryItem field
-                value={recordData.serviceOrderNumber}
+                id="os" // Changed from serviceOrderNumber
+                value={recordData.os} // Changed from recordData.serviceOrderNumber
                 onChange={handleChange}
                 placeholder="Ex: OS-12345, NF-9876"
                 className="form-input mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
