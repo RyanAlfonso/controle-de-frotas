@@ -28,6 +28,7 @@ const initialFormData: FormData = {
   email: '',
   contatoPrincipal: '',
   observacoes: '',
+  status: 'Ativo', // Added default status
 };
 
 const EditSupplierModal: React.FC<EditSupplierModalProps> = ({ isOpen, onClose, onSave, supplierToEdit }) => {
@@ -49,6 +50,7 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({ isOpen, onClose, 
           email: supplierToEdit.email || '',
           contatoPrincipal: supplierToEdit.contatoPrincipal || '',
           observacoes: supplierToEdit.observacoes || '',
+          status: supplierToEdit.status || 'Ativo', // Ensure status is populated
         });
       } else {
         // If modal is opened to create (though this is Edit modal, good practice) or supplierToEdit is null

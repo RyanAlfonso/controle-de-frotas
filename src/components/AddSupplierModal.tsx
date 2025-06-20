@@ -27,6 +27,7 @@ const initialFormData: FormData = {
   email: '',
   contatoPrincipal: '',
   observacoes: '',
+  status: 'Ativo', // Added default status
 };
 
 const AddSupplierModal: React.FC<AddSupplierModalProps> = ({ isOpen, onClose, onSave }) => {
