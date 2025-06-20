@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { Vehicle, VehicleStatus } from '../types'; // Import VehicleStatus
-import EditVehicleModal from './EditVehicleModal'; // Import EditVehicleModal
+import { Vehicle, VehicleStatus } from '../types';
+import EditVehicleModal from './EditVehicleModal';
+import ConfirmDeleteModal from './ConfirmDeleteModal'; // Import ConfirmDeleteModal
 
 interface VehiclesSectionProps {
   vehicles: Vehicle[];
   onAddVehicle: () => void;
-  onEditVehicle: (updatedVehicleData: Vehicle) => void; // Add onEditVehicle to props
+  onEditVehicle: (updatedVehicleData: Vehicle) => void;
+  onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void; // Add new prop
   // onFilterChange: (filters: any) => void;
 }
 
-const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicle, onEditVehicle }) => {
+const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicle, onEditVehicle, onSetVehicleStatus }) => {
   // const noVehicles = vehicles.length === 0; // This variable is not used, can be removed or kept
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
 
   // TODO: Implement filter state and logic
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +31,25 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setEditingVehicle(null);
+  };
+
+  const handleOpenConfirmDeleteModal = (vehicle: Vehicle) => {
+    setDeletingVehicle(vehicle);
+    setIsConfirmDeleteModalOpen(true);
+  };
+
+  const handleCloseConfirmDeleteModal = () => {
+    setIsConfirmDeleteModalOpen(false);
+    setDeletingVehicle(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingVehicle && deletingVehicle.id) {
+      onSetVehicleStatus(deletingVehicle.id, "Inativo" as VehicleStatus);
+      // Ensure "Inativo" is a valid VehicleStatus or handle casting carefully.
+      // The `as VehicleStatus` cast assumes "Inativo" is part of the VehicleStatus enum/type.
+    }
+    handleCloseConfirmDeleteModal();
   };
 
   // Define a type for the form data received from EditVehicleModal
@@ -157,6 +180,12 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
                     >
                       Editar
                     </button>
+                    <button
+                      onClick={() => handleOpenConfirmDeleteModal(v)}
+                      className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 ml-2"
+                    >
+                      Excluir
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -175,6 +204,13 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
         onClose={handleCloseEditModal}
         onSave={handleSaveVehicle}
         vehicleToEdit={editingVehicle}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteModalOpen}
+        onClose={handleCloseConfirmDeleteModal}
+        onConfirm={handleConfirmDelete}
+        vehicleName={deletingVehicle ? `${deletingVehicle.marca} ${deletingVehicle.modelo} (${deletingVehicle.placa})` : ''}
       />
     </section>
   );

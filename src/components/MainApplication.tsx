@@ -4,7 +4,7 @@ import Header from './Header';
 import DashboardSection from './DashboardSection';
 import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
-import { Vehicle, User } from '../types'; // Assuming types.ts is populated
+import { Vehicle, User, VehicleStatus } from '../types'; // Import VehicleStatus
 
 interface MainApplicationProps {
   activeSection: string;
@@ -20,7 +20,8 @@ interface MainApplicationProps {
   // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
-  onEditVehicle: (updatedVehicleData: Vehicle) => void; // Add new prop for editing
+  onEditVehicle: (updatedVehicleData: Vehicle) => void;
+  onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void; // Add new prop
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -33,7 +34,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   pendingOSCount,
   onOpenVehicleModal,
   onOpenUserModal,
-  onEditVehicle // Destructure the new prop
+  onEditVehicle,
+  onSetVehicleStatus // Destructure new prop
 }) => {
 
   const renderSection = () => {
@@ -53,7 +55,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           <VehiclesSection
             vehicles={vehicles}
             onAddVehicle={onOpenVehicleModal}
-            onEditVehicle={onEditVehicle} // Pass it down
+            onEditVehicle={onEditVehicle}
+            onSetVehicleStatus={onSetVehicleStatus} // Pass it down
             // onFilterChange will be added
           />
         );
