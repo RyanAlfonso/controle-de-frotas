@@ -26,7 +26,8 @@ interface MainApplicationProps {
   onOpenUserModal: () => void;
   onOpenSupplierModal: () => void;
   onOpenEditSupplierModal: (supplier: Supplier) => void;
-  onOpenAddServiceOrderModal: () => void; // Add service order modal opener
+  onOpenAddServiceOrderModal: () => void; // For creating a new OS
+  onOpenAddOSBudgetModal: (serviceOrderId: string) => void; // For adding budget to existing OS
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
   onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
@@ -46,7 +47,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onOpenUserModal,
   onOpenSupplierModal,
   onOpenEditSupplierModal,
-  onOpenAddServiceOrderModal, // Destructure service order modal opener
+  onOpenAddServiceOrderModal,
+  onOpenAddOSBudgetModal, // Destructure new prop
   onEditVehicle,
   onSetVehicleStatus,
   onSetSupplierStatus
@@ -92,7 +94,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             serviceOrders={serviceOrders}
             vehicles={vehicles}
             users={users}
-            onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
+            onOpenAddServiceOrderModal={onOpenAddServiceOrderModal} // For creating new OS
+            onOpenAddOSBudgetModal={onOpenAddOSBudgetModal} // For adding budget
           />
         );
       case 'users':

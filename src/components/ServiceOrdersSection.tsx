@@ -6,6 +6,7 @@ interface ServiceOrdersSectionProps {
   vehicles: Vehicle[];
   users: User[];
   onOpenAddServiceOrderModal: () => void;
+  onOpenAddOSBudgetModal: (serviceOrderId: string) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
@@ -13,6 +14,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   vehicles,
   users,
   onOpenAddServiceOrderModal,
+  onOpenAddOSBudgetModal, // Destructure new prop
 }) => {
   const noServiceOrders = serviceOrders.length === 0;
 
@@ -55,6 +57,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                   <th className="p-4 font-semibold text-slate-600">Tipo de Serviço</th>
                   <th className="p-4 font-semibold text-slate-600">Data Solicitação</th>
                   <th className="p-4 font-semibold text-slate-600">Solicitante</th>
+                  <th className="p-4 font-semibold text-slate-600 text-center">Orçamentos</th> {/* Added Orçamentos header */}
                   <th className="p-4 font-semibold text-slate-600">Status</th>
                   <th className="p-4 font-semibold text-slate-600">Ações</th>
                 </tr>
@@ -69,6 +72,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                       {new Date(order.requestDate).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="p-4 text-slate-600">{getUserName(order.requesterId)}</td>
+                    <td className="p-4 text-center text-slate-600">{order.budgets?.length || 0}</td> {/* Added budget count cell */}
                     <td className="p-4">
                       <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
                         order.status === 'Pendente de Orçamento' ? 'bg-yellow-100 text-yellow-800' :
@@ -81,7 +85,18 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                         {order.status}
                       </span>
                     </td>
-                    <td className="p-4 text-slate-600">{/* Actions placeholder */}</td>
+                    <td className="p-4 text-slate-600 space-x-1">
+                      {(order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && (
+                        <button
+                          onClick={() => onOpenAddOSBudgetModal(order.id)}
+                          title="Adicionar Orçamento"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                        >
+                          Orçamento+
+                        </button>
+                      )}
+                      {/* Placeholder for other action buttons like 'View Details' or 'Edit OS' */}
+                    </td>
                   </tr>
                 ))}
               </tbody>

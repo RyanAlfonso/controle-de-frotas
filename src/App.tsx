@@ -5,10 +5,11 @@ import AddVehicleModal from './components/AddVehicleModal';
 import AddUserModal from './components/AddUserModal';
 import AddSupplierModal from './components/AddSupplierModal';
 import EditSupplierModal from './components/EditSupplierModal';
-import AddServiceOrderModal from './components/AddServiceOrderModal'; // Import AddServiceOrderModal
+import AddServiceOrderModal from './components/AddServiceOrderModal';
+import AddOSBudgetModal from './components/AddOSBudgetModal'; // Import AddOSBudgetModal
 import {
   Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
-  ServiceOrder, ServiceOrderStatus
+  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget // Import ServiceOrderBudget
 } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -105,7 +106,8 @@ const initialServiceOrders: ServiceOrder[] = [
     problemDescription: 'Veículo com barulho estranho no motor e falha na aceleração. Realizar diagnóstico completo e orçamento.',
     requestDate: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
     requesterId: 'user_placeholder_id_123',
-    status: 'Pendente de Orçamento'
+    status: 'Pendente de Orçamento',
+    budgets: []
   },
   {
     id: 'os_sample_2',
@@ -114,7 +116,8 @@ const initialServiceOrders: ServiceOrder[] = [
     problemDescription: 'Pneu dianteiro direito furado. Necessita troca e verificação do estepe.',
     requestDate: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
     requesterId: 'user_placeholder_id_456',
-    status: 'Aguardando Aprovação'
+    status: 'Aguardando Aprovação',
+    budgets: []
   }
 ];
 
@@ -134,7 +137,9 @@ function App() {
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false);
   const [currentEditingSupplier, setCurrentEditingSupplier] = useState<Supplier | null>(null);
-  const [isAddServiceOrderModalOpen, setIsAddServiceOrderModalOpen] = useState(false); // State for AddServiceOrderModal
+  const [isAddServiceOrderModalOpen, setIsAddServiceOrderModalOpen] = useState(false);
+  const [isAddOSBudgetModalOpen, setIsAddOSBudgetModalOpen] = useState(false); // State for AddOSBudgetModal
+  const [currentServiceOrderForBudgetingId, setCurrentServiceOrderForBudgetingId] = useState<string | null>(null); // State for current OS ID for budget
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -240,19 +245,52 @@ function App() {
   };
 
   const handleAddServiceOrder = (
-    orderData: Omit<ServiceOrder, 'id' | 'requestDate' | 'requesterId' | 'status'>
-    // vehicleId is part of ServiceOrder, so it's expected in orderData if not omitted.
-    // The original prompt had: & { vehicleId: string }, but this is implicit if not omitted.
+    orderData: Omit<ServiceOrder, 'id' | 'requestDate' | 'requesterId' | 'status' | 'budgets'>
   ) => {
     const newServiceOrder: ServiceOrder = {
-      ...orderData, // Spread orderData first. This includes vehicleId, serviceType, problemDescription, and other optionals.
+      ...orderData,
       id: `os${serviceOrders.length + 1 + Math.random().toString(36).substring(2, 7)}`,
       requestDate: new Date().toISOString(),
       requesterId: 'user_placeholder_id_123',
       status: 'Pendente de Orçamento' as ServiceOrderStatus,
+      budgets: [], // Explicitly initialize with empty array
     };
     setServiceOrders(prevServiceOrders => [...prevServiceOrders, newServiceOrder]);
     setIsAddServiceOrderModalOpen(false); // Close modal on save
+  };
+
+  const handleOpenAddOSBudgetModal = (serviceOrderId: string) => {
+    setCurrentServiceOrderForBudgetingId(serviceOrderId);
+    setIsAddOSBudgetModalOpen(true);
+  };
+
+  const handleCloseAddOSBudgetModal = () => {
+    setCurrentServiceOrderForBudgetingId(null);
+    setIsAddOSBudgetModalOpen(false);
+  };
+
+  const handleAddOSBudget = (budgetData: Omit<ServiceOrderBudget, 'id'>) => {
+    if (!currentServiceOrderForBudgetingId) {
+      console.error("Error: No service order selected for adding budget.");
+      return;
+    }
+
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === currentServiceOrderForBudgetingId) {
+          const newBudget: ServiceOrderBudget = {
+            ...budgetData,
+            id: `bud${(order.budgets?.length || 0) + 1}_${order.id.substring(0,4)}_${Math.random().toString(36).substring(2, 7)}`, // Unique budget ID
+          };
+          return {
+            ...order,
+            budgets: [...(order.budgets || []), newBudget],
+          };
+        }
+        return order;
+      })
+    );
+    handleCloseAddOSBudgetModal(); // Close the modal after saving
   };
 
   if (!isLoggedIn) {
@@ -276,7 +314,8 @@ function App() {
         onOpenUserModal={() => setIsUserModalOpen(true)}
         onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
         onOpenEditSupplierModal={handleOpenEditSupplierModal}
-        onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)} // Pass handler for AddServiceOrderModal
+        onOpenAddServiceOrderModal={() => setIsAddServiceOrderModalOpen(true)} // For creating OS
+        onOpenAddOSBudgetModal={handleOpenAddOSBudgetModal} // For adding budget to OS
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
@@ -307,6 +346,12 @@ function App() {
         onClose={handleCloseEditSupplierModal}
         onSave={handleEditSupplier}
         supplierToEdit={currentEditingSupplier}
+      />
+      <AddOSBudgetModal
+        isOpen={isAddOSBudgetModalOpen}
+        onClose={handleCloseAddOSBudgetModal}
+        onSave={handleAddOSBudget}
+        suppliers={suppliers}
       />
     </>
   );

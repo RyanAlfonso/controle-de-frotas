@@ -103,6 +103,14 @@ export const SERVICE_ORDER_STATUSES = [
 
 export type ServiceOrderStatus = typeof SERVICE_ORDER_STATUSES[number];
 
+export interface ServiceOrderBudget {
+  id: string; // Unique ID for the budget entry itself
+  supplierId: string; // References Supplier.id
+  budgetValue: number;
+  estimatedDeadline: string; // e.g., "5 dias úteis", "24/12/2024"
+  budgetNotes?: string; // Optional notes for the budget
+}
+
 export interface ServiceOrder {
   id: string;
   vehicleId: string;
@@ -112,6 +120,9 @@ export interface ServiceOrder {
   requesterId: string;
   status: ServiceOrderStatus;
 
+  budgets?: ServiceOrderBudget[]; // Added this line
+
+  // Optional fields from before
   budgetDetails?: string;
   approvalDate?: string;
   approvedByUserId?: string;
