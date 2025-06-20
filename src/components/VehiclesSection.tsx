@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Vehicle, VehicleStatus } from '../types';
+import { Vehicle, VehicleStatus, MaintenanceHistoryItem } from '../types'; // Import MaintenanceHistoryItem
 import EditVehicleModal from './EditVehicleModal';
-import ConfirmDeleteModal from './ConfirmDeleteModal'; // Import ConfirmDeleteModal
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 
 interface VehiclesSectionProps {
   vehicles: Vehicle[];
@@ -64,6 +64,7 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
     chassi: string;
     status: string; // Modal sends string, will be cast to VehicleStatus
     km: string;
+    maintenanceHistory: MaintenanceHistoryItem[]; // Added this line
   };
 
   const handleSaveVehicle = (formDataFromModal: ModalVehicleFormData) => {
@@ -72,20 +73,26 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
       return;
     }
 
-    // Construct the updated vehicle, preserving id, and non-editable fields like history
+    // Construct the updated vehicle
     const updatedVehicle: Vehicle = {
       id: editingVehicle.id, // Crucial: keep original ID
+
+      // Data from the form modal
       marca: formDataFromModal.marca,
       modelo: formDataFromModal.modelo,
-      ano: parseInt(formDataFromModal.ano, 10), // Convert string from form to number
       cor: formDataFromModal.cor,
       placa: formDataFromModal.placa,
-      renavam: formDataFromModal.renavam, // Assuming renavam is string in Vehicle type, if not, parse
+      renavam: formDataFromModal.renavam, // Assuming renavam is string in Vehicle type
       chassi: formDataFromModal.chassi,
-      status: formDataFromModal.status as VehicleStatus, // Cast status to VehicleStatus type
-      km: parseInt(formDataFromModal.km, 10),   // Convert string from form to number
-      maintenanceHistory: editingVehicle.maintenanceHistory, // Preserve existing history
-      fuelingHistory: editingVehicle.fuelingHistory,       // Preserve existing history
+      ano: parseInt(formDataFromModal.ano, 10),
+      km: parseInt(formDataFromModal.km, 10),
+      status: formDataFromModal.status as VehicleStatus,
+
+      // Assign the maintenance history from the form data
+      maintenanceHistory: formDataFromModal.maintenanceHistory,
+
+      // Preserve original fuelingHistory as it's not editable in this flow
+      fuelingHistory: editingVehicle.fuelingHistory,
     };
 
     onEditVehicle(updatedVehicle); // Call the handler passed from App.tsx
