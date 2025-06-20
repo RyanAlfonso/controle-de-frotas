@@ -74,6 +74,15 @@ function App() {
     setIsVehicleModalOpen(false);
   };
 
+  const handleEditVehicle = (updatedVehicleData: Vehicle) => {
+    setVehicles(prevVehicles => 
+      prevVehicles.map(vehicle =>
+        vehicle.id === updatedVehicleData.id ? { ...vehicle, ...updatedVehicleData } : vehicle
+      )
+    );
+    // No modal to close here as EditVehicleModal has its own close mechanism
+  };
+
   const handleSaveUser = (userData: any) => {
     // Type assertion for userData
     const newUser: User = {
@@ -101,6 +110,7 @@ function App() {
         pendingOSCount={pendingOS.length}
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
+        onEditVehicle={handleEditVehicle} // Pass down the new handler
       />
       <AddVehicleModal
         isOpen={isVehicleModalOpen}
