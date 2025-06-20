@@ -25,6 +25,68 @@ const initialPendingOS: PendingOSItem[] = [
     { id: 'os2', tipo: 'Elétrica', status: 'Aguardando Aprovação'},
 ];
 
+const initialSuppliers: Supplier[] = [
+  {
+    id: 'sup1',
+    nomeRazaoSocial: 'Oficina Mecânica AutoRápido Ltda.',
+    nomeFantasia: 'AutoRápido Mecânica',
+    cnpjCpf: '12.345.678/0001-99',
+    tipoFornecedor: ['Oficina', 'Peças'],
+    endereco: 'Rua das Palmeiras, 123',
+    cidade: 'São Paulo',
+    estado: 'SP',
+    cep: '01000-000',
+    telefone: '(11) 98765-4321',
+    email: 'contato@autorapido.com.br',
+    contatoPrincipal: 'Carlos Alberto',
+    observacoes: 'Especialistas em motor e câmbio.'
+  },
+  {
+    id: 'sup2',
+    nomeRazaoSocial: 'Borracharia Veloz Pneus EIRELI',
+    nomeFantasia: 'Borracharia Veloz',
+    cnpjCpf: '98.765.432/0001-11',
+    tipoFornecedor: ['Borracharia'],
+    endereco: 'Av. dos Pneus, 456',
+    cidade: 'Rio de Janeiro',
+    estado: 'RJ',
+    cep: '02000-000',
+    telefone: '(21) 91234-5678',
+    email: 'velozpneus@email.com',
+    contatoPrincipal: 'Mariana Silva',
+    observacoes: 'Atendimento 24 horas para emergências.'
+  },
+  {
+    id: 'sup3',
+    nomeRazaoSocial: 'Peças e Acessórios Brasil Ltda.',
+    nomeFantasia: 'Brasil Peças',
+    cnpjCpf: '11.222.333/0001-44',
+    tipoFornecedor: ['Peças', 'Outros'],
+    endereco: 'Rodovia Principal, Km 789',
+    cidade: 'Belo Horizonte',
+    estado: 'MG',
+    cep: '03000-000',
+    telefone: '(31) 99999-8888',
+    email: 'vendas@brasilpecas.com.br',
+    contatoPrincipal: 'Fernando Costa',
+    observacoes: 'Amplo estoque de peças nacionais e importadas. Outros serviços: instalação de som.'
+  },
+  {
+    id: 'sup4',
+    nomeRazaoSocial: 'Posto PetroSol Combustíveis SA',
+    nomeFantasia: 'Posto PetroSol',
+    cnpjCpf: '44.555.666/0001-77',
+    tipoFornecedor: ['Abastecimento'],
+    endereco: 'Rua da Gasolina, 789',
+    cidade: 'Curitiba',
+    estado: 'PR',
+    cep: '04000-000',
+    telefone: '(41) 98888-7777',
+    email: 'gerencia@petrosol.com',
+    contatoPrincipal: 'Ana Paula',
+    observacoes: 'Combustível de alta qualidade e loja de conveniência.'
+  }
+];
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,7 +96,7 @@ function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [pendingOS, setPendingOS] = useState<PendingOSItem[]>(initialPendingOS);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]); // Add suppliers state
+  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers); // Use initialSuppliers
 
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
