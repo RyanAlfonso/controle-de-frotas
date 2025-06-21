@@ -142,4 +142,26 @@ export interface ServiceOrder {
   invoiceDueDate?: string;
   finalValue?: number;
   valueJustification?: string;
+
+  // Fields for RF020: Payment Control
+  payments?: OSPayment[];
+  paymentStatus?: OSPaymentStatus;
+}
+
+// OS Payment Types
+export const OS_PAYMENT_STATUSES = [
+  "Pendente",
+  "Parcialmente Pago",
+  "Pago"
+] as const;
+
+export type OSPaymentStatus = typeof OS_PAYMENT_STATUSES[number];
+
+export interface OSPayment {
+  id: string;
+  paymentDate: string;
+  paidAmount: number;
+  paymentMethod: string;
+  bankAccountInfo?: string;
+  notes?: string;
 }

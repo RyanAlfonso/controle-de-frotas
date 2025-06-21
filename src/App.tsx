@@ -9,10 +9,11 @@ import AddServiceOrderModal from './components/AddServiceOrderModal';
 import AddOSBudgetModal from './components/AddOSBudgetModal';
 import ViewOSBudgetsModal from './components/ViewOSBudgetsModal';
 import CompleteOSModal from './components/CompleteOSModal';
-import InvoiceOSModal from './components/InvoiceOSModal'; // Import InvoiceOSModal
+import InvoiceOSModal from './components/InvoiceOSModal';
+import RecordPaymentModal from './components/RecordPaymentModal'; // Import RecordPaymentModal
 import {
   Vehicle, User, PendingOSItem, VehicleStatus, UserProfile, Supplier, SupplierStatus,
-  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem
+  ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem, OSPayment, OSPaymentStatus // Import OSPayment types
 } from './types';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
@@ -110,7 +111,9 @@ const initialServiceOrders: ServiceOrder[] = [
     requestDate: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
     requesterId: 'user_placeholder_id_123',
     status: 'Pendente de Orçamento',
-    budgets: []
+    budgets: [],
+    payments: [],
+    // paymentStatus: 'Pendente' // Example if it was Faturada
   },
   {
     id: 'os_sample_2',
@@ -120,7 +123,8 @@ const initialServiceOrders: ServiceOrder[] = [
     requestDate: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
     requesterId: 'user_placeholder_id_456',
     status: 'Aguardando Aprovação',
-    budgets: []
+    budgets: [],
+    payments: []
   }
 ];
 
@@ -147,8 +151,10 @@ function App() {
   const [currentServiceOrderForViewingBudgets, setCurrentServiceOrderForViewingBudgets] = useState<ServiceOrder | null>(null);
   const [isCompleteOSModalOpen, setIsCompleteOSModalOpen] = useState(false);
   const [currentOSToComplete, setCurrentOSToComplete] = useState<ServiceOrder | null>(null);
-  const [isInvoiceOSModalOpen, setIsInvoiceOSModalOpen] = useState(false); // State for InvoiceOSModal
-  const [currentOSToInvoice, setCurrentOSToInvoice] = useState<ServiceOrder | null>(null); // State for OS to invoice
+  const [isInvoiceOSModalOpen, setIsInvoiceOSModalOpen] = useState(false);
+  const [currentOSToInvoice, setCurrentOSToInvoice] = useState<ServiceOrder | null>(null);
+  const [isRecordPaymentModalOpen, setIsRecordPaymentModalOpen] = useState(false); // State for RecordPaymentModal
+  const [currentOSToRecordPayment, setCurrentOSToRecordPayment] = useState<ServiceOrder | null>(null); // State for OS to record payment
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -254,7 +260,7 @@ function App() {
   };
 
   const handleAddServiceOrder = (
-    orderData: Omit<ServiceOrder, 'id' | 'requestDate' | 'requesterId' | 'status' | 'budgets'>
+    orderData: Omit<ServiceOrder, 'id' | 'requestDate' | 'requesterId' | 'status' | 'budgets' | 'payments' | 'paymentStatus'>
   ) => {
     const newServiceOrder: ServiceOrder = {
       ...orderData,
@@ -262,7 +268,9 @@ function App() {
       requestDate: new Date().toISOString(),
       requesterId: 'user_placeholder_id_123',
       status: 'Pendente de Orçamento' as ServiceOrderStatus,
-      budgets: [], // Explicitly initialize with empty array
+      budgets: [],
+      payments: [], // Initialize with empty array
+      // paymentStatus will be undefined initially
     };
     setServiceOrders(prevServiceOrders => [...prevServiceOrders, newServiceOrder]);
     setIsAddServiceOrderModalOpen(false); // Close modal on save
@@ -474,12 +482,66 @@ function App() {
             invoiceDueDate: invoiceData.invoiceDueDate,
             finalValue: invoiceData.finalValue,
             valueJustification: invoiceData.valueJustification || order.valueJustification,
+            payments: order.payments || [], // Ensure payments array exists
+            paymentStatus: 'Pendente' as OSPaymentStatus, // Set initial payment status
           };
         }
         return order;
       })
     );
     handleCloseInvoiceOSModal(); // Close the modal
+  };
+
+  const handleOpenRecordPaymentModal = (serviceOrderId: string) => {
+    const orderToRecordPayment = serviceOrders.find(os => os.id === serviceOrderId);
+    if (orderToRecordPayment) {
+      setCurrentOSToRecordPayment(orderToRecordPayment);
+      setIsRecordPaymentModalOpen(true);
+    } else {
+      console.error("Service Order not found for recording payment:", serviceOrderId);
+    }
+  };
+
+  const handleCloseRecordPaymentModal = () => {
+    setCurrentOSToRecordPayment(null);
+    setIsRecordPaymentModalOpen(false);
+  };
+
+  const handleRecordPayment = (paymentData: Omit<OSPayment, 'id'>) => {
+    if (!currentOSToRecordPayment) {
+      console.error("Error: No service order selected for recording payment.");
+      return;
+    }
+
+    const osId = currentOSToRecordPayment.id;
+
+    setServiceOrders(prevServiceOrders =>
+      prevServiceOrders.map(order => {
+        if (order.id === osId) {
+          const newPayment: OSPayment = {
+            ...paymentData,
+            id: `pay_${order.id.substring(0,4)}_${(order.payments?.length || 0) + 1}_${Math.random().toString(36).substring(2, 7)}`,
+          };
+          const updatedPayments = [...(order.payments || []), newPayment];
+          const totalPaid = updatedPayments.reduce((sum, p) => sum + p.paidAmount, 0);
+
+          let newPaymentStatus: OSPaymentStatus = 'Parcialmente Pago';
+          if (totalPaid >= (order.finalValue || 0) - 0.001) {
+            newPaymentStatus = 'Pago';
+          } else if (totalPaid === 0) {
+            newPaymentStatus = 'Pendente';
+          }
+
+          return {
+            ...order,
+            payments: updatedPayments,
+            paymentStatus: newPaymentStatus,
+          };
+        }
+        return order;
+      })
+    );
+    handleCloseRecordPaymentModal();
   };
 
   if (!isLoggedIn) {
@@ -508,7 +570,8 @@ function App() {
         onOpenViewOSBudgetsModal={handleOpenViewOSBudgetsModal}
         onStartOSExecution={handleStartOSExecution}
         onOpenCompleteOSModal={handleOpenCompleteOSModal}
-        onOpenInvoiceOSModal={handleOpenInvoiceOSModal} // Updated prop
+        onOpenInvoiceOSModal={handleOpenInvoiceOSModal}
+        onOpenRecordPaymentModal={handleOpenRecordPaymentModal} // Updated prop
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
@@ -565,6 +628,12 @@ function App() {
         onClose={handleCloseInvoiceOSModal}
         onConfirmInvoice={handleInvoiceOS}
         serviceOrder={currentOSToInvoice}
+      />
+      <RecordPaymentModal
+        isOpen={isRecordPaymentModalOpen}
+        onClose={handleCloseRecordPaymentModal}
+        onSavePayment={handleRecordPayment}
+        serviceOrder={currentOSToRecordPayment}
       />
     </>
   );
