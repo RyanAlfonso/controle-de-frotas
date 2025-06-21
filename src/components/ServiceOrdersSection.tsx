@@ -32,7 +32,23 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   const [searchSupplierInfo, setSearchSupplierInfo] = useState('');
   const [searchServiceType, setSearchServiceType] = useState('');
 
-  // const noServiceOrders = serviceOrders.length === 0; // Will be based on filteredServiceOrders.length
+  const getVehicleInfo = (vehicleId: string): string => {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    return vehicle ? `${vehicle.marca} ${vehicle.modelo} (${vehicle.placa})` : 'Veículo não encontrado';
+  };
+
+  const getUserName = (userId: string): string => {
+    // For placeholder IDs, return a generic name or the ID itself
+    if (userId.includes('placeholder')) return 'Usuário Solicitante';
+    const user = users.find(u => u.id === userId);
+    return user ? user.nome : 'Usuário desconhecido';
+  };
+
+  const getSupplierName = (supplierId: string | undefined): string => {
+    if (!supplierId) return '';
+    const supplier = suppliers.find(s => s.id === supplierId);
+    return supplier ? (supplier.nomeFantasia || supplier.nomeRazaoSocial) : 'Fornecedor Desconhecido';
+  };
 
   const filteredServiceOrders = serviceOrders.filter(order => {
     // Status Filter
@@ -64,24 +80,6 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
 
     return statusMatches && osIdMatches && vehicleMatches && serviceTypeMatches && supplierMatches;
   });
-
-  const getVehicleInfo = (vehicleId: string): string => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    return vehicle ? `${vehicle.marca} ${vehicle.modelo} (${vehicle.placa})` : 'Veículo não encontrado';
-  };
-
-  const getUserName = (userId: string): string => {
-    // For placeholder IDs, return a generic name or the ID itself
-    if (userId.includes('placeholder')) return 'Usuário Solicitante';
-    const user = users.find(u => u.id === userId);
-    return user ? user.nome : 'Usuário desconhecido';
-  };
-
-  const getSupplierName = (supplierId: string | undefined): string => {
-    if (!supplierId) return '';
-    const supplier = suppliers.find(s => s.id === supplierId);
-    return supplier ? (supplier.nomeFantasia || supplier.nomeRazaoSocial) : 'Fornecedor Desconhecido';
-  };
 
   const hasActiveFilters =
       selectedStatuses.length > 0 ||
