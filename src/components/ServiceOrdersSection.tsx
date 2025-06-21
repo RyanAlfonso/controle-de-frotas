@@ -1,22 +1,24 @@
-import React, { useState } from 'react'; // Import useState
-import { ServiceOrder, Vehicle, User, SERVICE_ORDER_STATUSES, ServiceOrderStatus } from '../types'; // Import status types
+import React, { useState } from 'react';
+import { ServiceOrder, Vehicle, User, SERVICE_ORDER_STATUSES, ServiceOrderStatus, Supplier } from '../types'; // Import Supplier
 
 interface ServiceOrdersSectionProps {
   serviceOrders: ServiceOrder[];
   vehicles: Vehicle[];
   users: User[];
+  suppliers: Supplier[]; // Added suppliers prop
   onOpenAddServiceOrderModal: () => void;
   onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
   onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
   onStartOSExecution: (serviceOrderId: string) => void;
   onOpenCompleteOSModal: (serviceOrderId: string) => void;
-  onOpenInvoiceOSModal: (serviceOrderId: string) => void; // Added new prop
+  onOpenInvoiceOSModal: (serviceOrderId: string) => void;
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   serviceOrders,
   vehicles,
   users,
+  suppliers, // Destructure suppliers
   onOpenAddServiceOrderModal,
   onOpenAddOSBudgetModal,
   onOpenViewOSBudgetsModal,
@@ -25,7 +27,10 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   onOpenInvoiceOSModal,
 }) => {
   const [selectedStatuses, setSelectedStatuses] = useState<ServiceOrderStatus[]>([]);
-  // TODO: Add searchTerm state if general text search is also desired for service orders
+  const [searchOsId, setSearchOsId] = useState('');
+  const [searchVehicleInfo, setSearchVehicleInfo] = useState('');
+  const [searchSupplierInfo, setSearchSupplierInfo] = useState('');
+  const [searchServiceType, setSearchServiceType] = useState('');
 
   // const noServiceOrders = serviceOrders.length === 0; // Will be based on filteredServiceOrders.length
 
@@ -33,11 +38,31 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
     // Status Filter
     const statusMatches = selectedStatuses.length === 0 || selectedStatuses.includes(order.status);
 
-    // Placeholder for other potential filters (e.g., search by ID, vehicle)
-    // const searchMatches = true; // Example
-    // return searchMatches && statusMatches;
+    // OS ID Filter
+    const osIdMatches = searchOsId.trim() === '' ||
+                        order.id.toLowerCase().includes(searchOsId.toLowerCase().trim());
 
-    return statusMatches;
+    // Vehicle Info Filter
+    const vehicleInfoString = getVehicleInfo(order.vehicleId);
+    const vehicleMatches = searchVehicleInfo.trim() === '' ||
+                           vehicleInfoString.toLowerCase().includes(searchVehicleInfo.toLowerCase().trim());
+
+    // Service Type Filter
+    const serviceTypeMatches = searchServiceType.trim() === '' ||
+                               order.serviceType.toLowerCase().includes(searchServiceType.toLowerCase().trim());
+
+    // Supplier Info Filter
+    let supplierMatches = true;
+    if (searchSupplierInfo.trim() !== '') {
+      if (order.supplierId) {
+        const supplierName = getSupplierName(order.supplierId);
+        supplierMatches = supplierName.toLowerCase().includes(searchSupplierInfo.toLowerCase().trim());
+      } else {
+        supplierMatches = false;
+      }
+    }
+
+    return statusMatches && osIdMatches && vehicleMatches && serviceTypeMatches && supplierMatches;
   });
 
   const getVehicleInfo = (vehicleId: string): string => {
@@ -51,6 +76,19 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
     const user = users.find(u => u.id === userId);
     return user ? user.nome : 'Usuário desconhecido';
   };
+
+  const getSupplierName = (supplierId: string | undefined): string => {
+    if (!supplierId) return '';
+    const supplier = suppliers.find(s => s.id === supplierId);
+    return supplier ? (supplier.nomeFantasia || supplier.nomeRazaoSocial) : 'Fornecedor Desconhecido';
+  };
+
+  const hasActiveFilters =
+      selectedStatuses.length > 0 ||
+      searchOsId.trim() !== '' ||
+      searchVehicleInfo.trim() !== '' ||
+      searchSupplierInfo.trim() !== '' ||
+      searchServiceType.trim() !== '';
 
   return (
     <section id="serviceorders-section" className="page-section">
@@ -66,10 +104,63 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
 
       {/* Filter Controls Section */}
       <div className="mb-5 p-4 bg-white border border-slate-200/80 rounded-xl shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4"> {/* Single column for status checkboxes */}
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+          {/* Column 1: Text/ID based filters */}
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="os-id-filter" className="text-sm font-medium text-slate-600">Pesquisar por Nº OS</label>
+              <input
+                type="text"
+                id="os-id-filter"
+                placeholder="Número da OS..."
+                value={searchOsId}
+                onChange={(e) => setSearchOsId(e.target.value)}
+                className="mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="vehicle-info-filter" className="text-sm font-medium text-slate-600">Pesquisar por Veículo</label>
+              <input
+                type="text"
+                id="vehicle-info-filter"
+                placeholder="Marca, Modelo, Placa..."
+                value={searchVehicleInfo}
+                onChange={(e) => setSearchVehicleInfo(e.target.value)}
+                className="mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
+              />
+            </div>
+          </div>
+
+          {/* Column 2: More Text based filters */}
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="supplier-info-filter" className="text-sm font-medium text-slate-600">Pesquisar por Fornecedor (OS Aprovada)</label>
+              <input
+                type="text"
+                id="supplier-info-filter"
+                placeholder="Nome do Fornecedor..."
+                value={searchSupplierInfo}
+                onChange={(e) => setSearchSupplierInfo(e.target.value)}
+                className="mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="service-type-filter" className="text-sm font-medium text-slate-600">Pesquisar por Tipo de Serviço</label>
+              <input
+                type="text"
+                id="service-type-filter"
+                placeholder="Tipo de serviço..."
+                value={searchServiceType}
+                onChange={(e) => setSearchServiceType(e.target.value)}
+                className="mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
+              />
+            </div>
+          </div>
+
+          {/* Column 3: Status Filter Checkboxes (can take more vertical space) */}
+          <div className="lg:col-span-1 md:col-span-2"> {/* Spans 1 on lg, 2 on md to allow text filters to take 2/3 width on lg */}
             <label className="text-sm font-medium text-slate-600 mb-1 block">Filtrar por Status da OS</label>
-            <div className="mt-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2">
+            <div className="mt-1 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-2"> {/* Adjusted grid for statuses */}
               {SERVICE_ORDER_STATUSES.map((status) => (
                 <label key={status} className="flex items-center space-x-2 text-sm text-slate-700 cursor-pointer">
                   <input
@@ -95,9 +186,9 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
 
       {filteredServiceOrders.length === 0 ? (
         <div id="no-service-orders" className="p-8 text-center text-slate-500">
-          {selectedStatuses.length > 0 ?
-            "Nenhuma ordem de serviço encontrada com os status selecionados." :
-            "Nenhuma ordem de serviço encontrada."
+          {hasActiveFilters ?
+            "Nenhuma ordem de serviço encontrada com os filtros aplicados." :
+            "Nenhuma ordem de serviço cadastrada."
           }
         </div>
       ) : (
