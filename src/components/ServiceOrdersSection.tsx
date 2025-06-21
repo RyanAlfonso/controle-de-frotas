@@ -1,5 +1,5 @@
-import React from 'react';
-import { ServiceOrder, Vehicle, User } from '../types';
+import React, { useState } from 'react'; // Import useState
+import { ServiceOrder, Vehicle, User, SERVICE_ORDER_STATUSES, ServiceOrderStatus } from '../types'; // Import status types
 
 interface ServiceOrdersSectionProps {
   serviceOrders: ServiceOrder[];
@@ -22,9 +22,23 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   onOpenViewOSBudgetsModal,
   onStartOSExecution,
   onOpenCompleteOSModal,
-  onOpenInvoiceOSModal, // Destructure new prop
+  onOpenInvoiceOSModal,
 }) => {
-  const noServiceOrders = serviceOrders.length === 0;
+  const [selectedStatuses, setSelectedStatuses] = useState<ServiceOrderStatus[]>([]);
+  // TODO: Add searchTerm state if general text search is also desired for service orders
+
+  // const noServiceOrders = serviceOrders.length === 0; // Will be based on filteredServiceOrders.length
+
+  const filteredServiceOrders = serviceOrders.filter(order => {
+    // Status Filter
+    const statusMatches = selectedStatuses.length === 0 || selectedStatuses.includes(order.status);
+
+    // Placeholder for other potential filters (e.g., search by ID, vehicle)
+    // const searchMatches = true; // Example
+    // return searchMatches && statusMatches;
+
+    return statusMatches;
+  });
 
   const getVehicleInfo = (vehicleId: string): string => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
@@ -50,9 +64,41 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
         </button>
       </div>
 
-      {noServiceOrders ? (
+      {/* Filter Controls Section */}
+      <div className="mb-5 p-4 bg-white border border-slate-200/80 rounded-xl shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4"> {/* Single column for status checkboxes */}
+          <div>
+            <label className="text-sm font-medium text-slate-600 mb-1 block">Filtrar por Status da OS</label>
+            <div className="mt-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2">
+              {SERVICE_ORDER_STATUSES.map((status) => (
+                <label key={status} className="flex items-center space-x-2 text-sm text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-4 w-4 text-teal-600 border-slate-300 rounded focus:ring-teal-500"
+                    checked={selectedStatuses.includes(status)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedStatuses([...selectedStatuses, status]);
+                      } else {
+                        setSelectedStatuses(selectedStatuses.filter(s => s !== status));
+                      }
+                    }}
+                  />
+                  <span>{status}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* End of Filter Controls Section */}
+
+      {filteredServiceOrders.length === 0 ? (
         <div id="no-service-orders" className="p-8 text-center text-slate-500">
-          Nenhuma ordem de serviço encontrada.
+          {selectedStatuses.length > 0 ?
+            "Nenhuma ordem de serviço encontrada com os status selecionados." :
+            "Nenhuma ordem de serviço encontrada."
+          }
         </div>
       ) : (
         <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
@@ -65,13 +111,13 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                   <th className="p-4 font-semibold text-slate-600">Tipo de Serviço</th>
                   <th className="p-4 font-semibold text-slate-600">Data Solicitação</th>
                   <th className="p-4 font-semibold text-slate-600">Solicitante</th>
-                  <th className="p-4 font-semibold text-slate-600 text-center">Orçamentos</th> {/* Added Orçamentos header */}
+                  <th className="p-4 font-semibold text-slate-600 text-center">Orçamentos</th>
                   <th className="p-4 font-semibold text-slate-600">Status</th>
                   <th className="p-4 font-semibold text-slate-600">Ações</th>
                 </tr>
               </thead>
               <tbody id="serviceorder-list" className="divide-y divide-slate-200">
-                {serviceOrders.map((order) => (
+                {filteredServiceOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-slate-50">
                     <td className="p-4 font-medium text-slate-800">{order.id}</td>
                     <td className="p-4 text-slate-600">{getVehicleInfo(order.vehicleId)}</td>
