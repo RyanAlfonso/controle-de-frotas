@@ -31,7 +31,8 @@ interface MainApplicationProps {
   onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
   onStartOSExecution: (serviceOrderId: string) => void;
   onOpenCompleteOSModal: (serviceOrderId: string) => void;
-  onOpenInvoiceOSModal: (serviceOrderId: string) => void; // Added new prop
+  onOpenInvoiceOSModal: (serviceOrderId: string) => void;
+  onOpenRecordPaymentModal: (serviceOrderId: string) => void; // Added new prop
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
   onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
@@ -56,7 +57,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onOpenViewOSBudgetsModal,
   onStartOSExecution,
   onOpenCompleteOSModal,
-  onOpenInvoiceOSModal, // Destructure new prop
+  onOpenInvoiceOSModal,
+  onOpenRecordPaymentModal, // Destructure new prop
   onEditVehicle,
   onSetVehicleStatus,
   onSetSupplierStatus
@@ -107,7 +109,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}
             onStartOSExecution={onStartOSExecution}
             onOpenCompleteOSModal={onOpenCompleteOSModal}
-            onOpenInvoiceOSModal={onOpenInvoiceOSModal} // Pass new prop
+            onOpenInvoiceOSModal={onOpenInvoiceOSModal}
+            onOpenRecordPaymentModal={onOpenRecordPaymentModal} // Pass new prop
           />
         );
       case 'users':

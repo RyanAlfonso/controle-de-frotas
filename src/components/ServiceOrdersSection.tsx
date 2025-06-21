@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ServiceOrder, Vehicle, User, SERVICE_ORDER_STATUSES, ServiceOrderStatus, Supplier } from '../types'; // Import Supplier
+import { ServiceOrder, Vehicle, User, SERVICE_ORDER_STATUSES, ServiceOrderStatus, Supplier, OSPaymentStatus } from '../types'; // Import OSPaymentStatus
 
 interface ServiceOrdersSectionProps {
   serviceOrders: ServiceOrder[];
@@ -12,19 +12,21 @@ interface ServiceOrdersSectionProps {
   onStartOSExecution: (serviceOrderId: string) => void;
   onOpenCompleteOSModal: (serviceOrderId: string) => void;
   onOpenInvoiceOSModal: (serviceOrderId: string) => void;
+  onOpenRecordPaymentModal: (serviceOrderId: string) => void; // Added new prop
 }
 
 const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
   serviceOrders,
   vehicles,
   users,
-  suppliers, // Destructure suppliers
+  suppliers,
   onOpenAddServiceOrderModal,
   onOpenAddOSBudgetModal,
   onOpenViewOSBudgetsModal,
   onStartOSExecution,
   onOpenCompleteOSModal,
   onOpenInvoiceOSModal,
+  onOpenRecordPaymentModal, // Destructure new prop
 }) => {
   const [selectedStatuses, setSelectedStatuses] = useState<ServiceOrderStatus[]>([]);
   const [searchOsId, setSearchOsId] = useState('');
@@ -201,7 +203,8 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                   <th className="p-4 font-semibold text-slate-600">Data Solicitação</th>
                   <th className="p-4 font-semibold text-slate-600">Solicitante</th>
                   <th className="p-4 font-semibold text-slate-600 text-center">Orçamentos</th>
-                  <th className="p-4 font-semibold text-slate-600">Status</th>
+                  <th className="p-4 font-semibold text-slate-600">Status OS</th>
+                  <th className="p-4 font-semibold text-slate-600">Status Pagto.</th> {/* Added Payment Status header */}
                   <th className="p-4 font-semibold text-slate-600">Ações</th>
                 </tr>
               </thead>
@@ -229,6 +232,20 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                       }`}>
                         {order.status}
                       </span>
+                    </td>
+                    <td className="p-4 text-slate-600"> {/* Payment Status cell */}
+                      {order.paymentStatus ? (
+                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                          order.paymentStatus === 'Pendente' ? 'bg-orange-100 text-orange-800' :
+                          order.paymentStatus === 'Parcialmente Pago' ? 'bg-sky-100 text-sky-800' :
+                          order.paymentStatus === 'Pago' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800' // Fallback for unexpected status
+                        }`}>
+                          {order.paymentStatus}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-500">N/A</span>
+                      )}
                     </td>
                     <td className="p-4 text-slate-600 space-x-1">
                       {((order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && !order.budgets?.some(b => b.isApproved)) && (
@@ -274,6 +291,15 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-cyan-700 bg-cyan-100 hover:bg-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-1"
                         >
                           Faturar
+                        </button>
+                      )}
+                      {(order.status === 'Faturada' && order.paymentStatus !== 'Pago') && (
+                        <button
+                          onClick={() => onOpenRecordPaymentModal(order.id)}
+                          title="Registrar Pagamento da OS"
+                          className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-lime-700 bg-lime-100 hover:bg-lime-200 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:ring-offset-1"
+                        >
+                          Reg. Pagto.
                         </button>
                       )}
                     </td>
