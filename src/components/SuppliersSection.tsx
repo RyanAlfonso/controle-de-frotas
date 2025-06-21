@@ -26,7 +26,7 @@ const SuppliersSection: React.FC<SuppliersSectionProps> = ({
   const handleOpenConfirmDeleteModal = (supplier: Supplier) => {
     setDeletingSupplier(supplier);
     // Placeholder for dependency check logic
-    setDeleteDependencyWarning("Verifique as Ordens de Serviço associadas antes de inativar."); // Generic placeholder
+    setDeleteDependencyWarning("Verifique as Ordens de Serviço associadas antes de inativar. Esta é uma mensagem de exemplo."); // Generic placeholder
     setIsConfirmDeleteModalOpen(true);
   };
 

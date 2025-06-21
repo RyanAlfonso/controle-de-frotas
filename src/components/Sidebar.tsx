@@ -11,7 +11,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, onLogout, activeSection }
     { id: 'dashboard', title: 'Dashboard' },
     { id: 'vehicles', title: 'Veículos' },
     { id: 'suppliers', title: 'Fornecedores' },
-    { id: 'serviceOrders', title: 'Ordens de Serviço' }, // Added Service Orders navigation
+    { id: 'serviceOrders', title: 'Ordens de Serviço' },
+    { id: 'financialReports', title: 'Relatórios Financeiros' }, // Added Financial Reports
     { id: 'users', title: 'Usuários' },
   ];
 

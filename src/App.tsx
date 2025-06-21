@@ -160,7 +160,8 @@ function App() {
     'dashboard': 'Dashboard',
     'vehicles': 'Gerenciamento de Frota',
     'suppliers': 'Gerenciamento de Fornecedores',
-    'serviceOrders': 'Gerenciamento de Ordens de Serviço', // Added title for service orders
+    'serviceOrders': 'Gerenciamento de Ordens de Serviço',
+    'financialReports': 'Relatórios Financeiros', // Added title for financial reports
     'users': 'Gerenciamento de Usuários'
   };
 

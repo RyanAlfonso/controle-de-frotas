@@ -1,19 +1,13 @@
-import React from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import DashboardSection from "./DashboardSection";
-import VehiclesSection from "./VehiclesSection";
-import UsersSection from "./UsersSection";
-import SuppliersSection from "./SuppliersSection";
-import ServiceOrdersSection from "./ServiceOrdersSection"; // Import ServiceOrdersSection
-import {
-  Vehicle,
-  User,
-  VehicleStatus,
-  Supplier,
-  SupplierStatus,
-  ServiceOrder,
-} from "../types";
+import React from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import DashboardSection from './DashboardSection';
+import VehiclesSection from './VehiclesSection';
+import UsersSection from './UsersSection';
+import SuppliersSection from './SuppliersSection';
+import ServiceOrdersSection from './ServiceOrdersSection';
+import FinancialReportsSection from './FinancialReportsSection'; // Import FinancialReportsSection
+import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus, ServiceOrder } from '../types';
 
 interface MainApplicationProps {
   activeSection: string;
@@ -68,23 +62,22 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onOpenRecordPaymentModal, // Destructure new prop
   onEditVehicle,
   onSetVehicleStatus,
-  onSetSupplierStatus,
+  onSetSupplierStatus
 }) => {
+
   const renderSection = () => {
     switch (activeSection) {
-      case "dashboard":
+      case 'dashboard':
         return (
           <DashboardSection
             totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter((v) => v.status === "Ativo").length}
-            maintenanceVehicles={
-              vehicles.filter((v) => v.status === "Em Manutenção").length
-            }
+            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
+            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
             pendingOS={pendingOSCount}
             // fleetStatusData will be derived or passed if more complex
           />
         );
-      case "vehicles":
+      case 'vehicles':
         return (
           <VehiclesSection
             vehicles={vehicles}
@@ -94,7 +87,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             // onFilterChange will be added
           />
         );
-      case "suppliers": // Add case for suppliers
+      case 'suppliers': // Add case for suppliers
         return (
           <SuppliersSection
             suppliers={suppliers}
@@ -103,7 +96,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onSetSupplierStatus={onSetSupplierStatus}
           />
         );
-      case "serviceOrders": // Add case for service orders
+      case 'serviceOrders': // Add case for service orders
         return (
           // <ServiceOrdersSection
           //   serviceOrders={serviceOrders}
@@ -112,7 +105,6 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             serviceOrders={serviceOrders}
             vehicles={vehicles}
             users={users}
-            suppliers={suppliers}
             onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
             onOpenAddOSBudgetModal={onOpenAddOSBudgetModal}
             onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}
@@ -122,19 +114,31 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onOpenRecordPaymentModal={onOpenRecordPaymentModal}
           />
         );
-      case "users":
-        return <UsersSection users={users} onAddUser={onOpenUserModal} />;
-      default:
+      case 'financialReports': // Added case for financial reports
         return (
-          <DashboardSection /* Default to dashboard or a placeholder */
-            totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter((v) => v.status === "Ativo").length}
-            maintenanceVehicles={
-              vehicles.filter((v) => v.status === "Em Manutenção").length
-            }
-            pendingOS={pendingOSCount}
+          // <FinancialReportsSection
+          //   serviceOrders={serviceOrders}
+          //   vehicles={vehicles}
+          <FinancialReportsSection
+            serviceOrders={serviceOrders}
+            vehicles={vehicles}
+            suppliers={suppliers}
           />
         );
+      case 'users':
+        return (
+          <UsersSection
+            users={users}
+            onAddUser={onOpenUserModal}
+          />
+        );
+      default:
+        return <DashboardSection /* Default to dashboard or a placeholder */
+            totalVehicles={vehicles.length}
+            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
+            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
+            pendingOS={pendingOSCount}
+        />;
     }
   };
 
