@@ -33,7 +33,8 @@ export interface Vehicle {
     renavam: string;
     chassi: string;
     status: VehicleStatus;
-    km: number;
+    km: number; // Current mileage
+    initialMileage?: number; // Mileage when acquired/added to system (Added)
     maintenanceHistory: MaintenanceHistoryItem[];
     fuelingHistory: FuelingHistoryItem[];
 }
