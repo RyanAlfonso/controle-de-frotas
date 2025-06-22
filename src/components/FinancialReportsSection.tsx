@@ -241,20 +241,19 @@ const FinancialReportsSection: React.FC<FinancialReportsSectionProps> = ({
       </div>
 
       {/* Report Display Area for OS Costs */}
-      {activeReportView === 'osCosts' && (
-        <>
-          {filteredReportData.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">
-              {hasActiveFilters ?
-                "Nenhum dado encontrado para os filtros selecionados." :
-                "Nenhuma ordem de serviço processada (Concluída/Faturada com valor) para exibir no relatório."
-              }
-            </div>
-          ) : (
-            <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+      {/* Removed redundant activeReportView === 'osCosts' check here, it's handled by the parent <> wrapper */}
+      {filteredReportData.length === 0 ? (
+        <div className="p-8 text-center text-slate-500">
+          {hasActiveFilters ?
+            "Nenhum dado encontrado para os filtros selecionados." :
+            "Nenhuma ordem de serviço processada (Concluída/Faturada com valor) para exibir no relatório."
+          }
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   <th className="p-3 font-semibold text-slate-600">OS ID</th>
                   <th className="p-3 font-semibold text-slate-600">Veículo</th>
@@ -303,9 +302,9 @@ const FinancialReportsSection: React.FC<FinancialReportsSectionProps> = ({
             </table>
           </div>
         </div>
-          )}
-        </>
       )}
+        </>
+      )} {/* This closes the outer activeReportView === 'osCosts' block */}
 
       {activeReportView === 'costPerKm' && (
         <div className="mt-6">
