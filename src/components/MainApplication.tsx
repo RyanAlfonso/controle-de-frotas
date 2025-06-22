@@ -105,6 +105,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             serviceOrders={serviceOrders}
             vehicles={vehicles}
             users={users}
+            suppliers={suppliers} // Added suppliers prop here
             onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
             onOpenAddOSBudgetModal={onOpenAddOSBudgetModal}
             onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}

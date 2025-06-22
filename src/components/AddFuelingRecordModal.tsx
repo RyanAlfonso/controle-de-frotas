@@ -1,12 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FuelingHistoryItem } from '../types';
 
-type FuelingRecordFormData = Omit<FuelingHistoryItem, 'id'>;
+// Local type for form state, allowing string for number inputs initially
+interface FuelingRecordFormData {
+  date: string;
+  fuelType: string;
+  liters: string | number;
+  pricePerLiter: string | number;
+  totalCost: string | number;
+  mileage: string | number;
+  stationName: string;
+}
 
 interface AddFuelingRecordModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (record: FuelingRecordFormData) => void;
+  // onSave expects the final data structure with numbers
+  onSave: (record: Omit<FuelingHistoryItem, 'id'>) => void;
 }
 
 const initialFormData: FuelingRecordFormData = {
