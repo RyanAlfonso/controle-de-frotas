@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Vehicle, VehicleStatus, MaintenanceHistoryItem } from '../types'; // Import MaintenanceHistoryItem
+import { Vehicle, VehicleStatus, MaintenanceHistoryItem, FuelingHistoryItem } from '../types'; // Import FuelingHistoryItem
 import EditVehicleModal from './EditVehicleModal';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
@@ -64,7 +64,8 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
     chassi: string;
     status: string; // Modal sends string, will be cast to VehicleStatus
     km: string;
-    maintenanceHistory: MaintenanceHistoryItem[]; // Added this line
+    maintenanceHistory: MaintenanceHistoryItem[];
+    fuelingHistory: FuelingHistoryItem[]; // Added fuelingHistory
   };
 
   const handleSaveVehicle = (formDataFromModal: ModalVehicleFormData) => {
@@ -91,8 +92,8 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
       // Assign the maintenance history from the form data
       maintenanceHistory: formDataFromModal.maintenanceHistory,
 
-      // Preserve original fuelingHistory as it's not editable in this flow
-      fuelingHistory: editingVehicle.fuelingHistory,
+      // Assign the fueling history from the form data
+      fuelingHistory: formDataFromModal.fuelingHistory,
     };
 
     onEditVehicle(updatedVehicle); // Call the handler passed from App.tsx

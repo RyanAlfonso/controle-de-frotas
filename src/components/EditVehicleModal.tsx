@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Vehicle, VehicleStatus, MaintenanceHistoryItem } from '../types';
-import AddMaintenanceRecordModal from './AddMaintenanceRecordModal'; // Import AddMaintenanceRecordModal
+import { Vehicle, VehicleStatus, MaintenanceHistoryItem, FuelingHistoryItem } from '../types';
+import AddMaintenanceRecordModal from './AddMaintenanceRecordModal';
+import AddFuelingRecordModal from './AddFuelingRecordModal'; // Import AddFuelingRecordModal
 
 // Using VehicleFormData to represent the editable fields in the form
 interface VehicleFormData {
@@ -11,9 +12,10 @@ interface VehicleFormData {
   placa: string;
   renavam: string;
   chassi: string;
-  status: string; // Stays string for form input, VehicleStatus is used in Vehicle type
+  status: string;
   km: string;
-  maintenanceHistory: MaintenanceHistoryItem[]; // Add maintenance history
+  maintenanceHistory: MaintenanceHistoryItem[];
+  fuelingHistory: FuelingHistoryItem[]; // Added fueling history
 }
 
 interface EditVehicleModalProps {
@@ -34,10 +36,12 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
     chassi: '',
     status: 'Ativo', // Default status
     km: '',
-    maintenanceHistory: [], // Initialize maintenance history
+    maintenanceHistory: [],
+    fuelingHistory: [], // Initialize fueling history
   });
 
   const [isAddMaintenanceModalOpen, setIsAddMaintenanceModalOpen] = useState(false);
+  const [isAddFuelingModalOpen, setIsAddFuelingModalOpen] = useState(false); // State for AddFuelingRecordModal
 
   useEffect(() => {
     if (vehicleToEdit) {
@@ -51,7 +55,8 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         chassi: vehicleToEdit.chassi || '',
         status: vehicleToEdit.status || 'Ativo',
         km: String(vehicleToEdit.km || ''),
-        maintenanceHistory: vehicleToEdit.maintenanceHistory || [], // Populate history
+        maintenanceHistory: vehicleToEdit.maintenanceHistory || [],
+        fuelingHistory: vehicleToEdit.fuelingHistory || [], // Populate fueling history
       });
     } else {
       // Reset form if no vehicle is being edited or if it's cleared
@@ -65,7 +70,8 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         chassi: '',
         status: 'Ativo',
         km: '',
-        maintenanceHistory: [], // Reset history
+        maintenanceHistory: [],
+        fuelingHistory: [], // Reset fueling history
       });
     }
   }, [vehicleToEdit, isOpen]); // Re-run if vehicleToEdit changes or modal opens
@@ -95,6 +101,27 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
       maintenanceHistory: [...prev.maintenanceHistory, newRecordWithIdIfNecessary],
     }));
     handleCloseAddMaintenanceModal();
+  };
+
+  const handleOpenAddFuelingModal = () => {
+    setIsAddFuelingModalOpen(true);
+  };
+
+  const handleCloseAddFuelingModal = () => {
+    setIsAddFuelingModalOpen(false);
+  };
+
+  const handleSaveFuelingRecord = (newRecord: Omit<FuelingHistoryItem, 'id'>) => {
+    const completeNewRecord: FuelingHistoryItem = {
+      ...newRecord,
+      // Generate a unique ID for the new fueling record (temporary, backend should replace)
+      id: `fuel_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    };
+    setFormData(prev => ({
+      ...prev,
+      fuelingHistory: [...prev.fuelingHistory, completeNewRecord]
+    }));
+    handleCloseAddFuelingModal();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -200,6 +227,51 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
             </div>
             {/* End of Maintenance History Section */}
 
+            {/* Fueling History Section */}
+            <h4 className="text-md font-semibold text-slate-700 mt-6 mb-3 pt-4 border-t border-slate-200">Histórico de Abastecimento</h4>
+            {formData.fuelingHistory && formData.fuelingHistory.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="p-3 font-semibold text-slate-600">Data</th>
+                      <th className="p-3 font-semibold text-slate-600">Combustível</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">Litros</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">Preço/L</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">Valor Total</th>
+                      <th className="p-3 font-semibold text-slate-600 text-right">KM Atual</th>
+                      <th className="p-3 font-semibold text-slate-600">Posto</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {formData.fuelingHistory.map((item) => ( // Changed key to item.id
+                      <tr key={item.id} className="hover:bg-slate-50">
+                        <td className="p-3 text-slate-600">{new Date(item.date).toLocaleDateString('pt-BR')}</td>
+                        <td className="p-3 text-slate-600">{item.fuelType}</td>
+                        <td className="p-3 text-slate-600 text-right">{item.liters.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} L</td>
+                        <td className="p-3 text-slate-600 text-right">{item.pricePerLiter.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td className="p-3 text-slate-600 text-right">{item.totalCost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        <td className="p-3 text-slate-600 text-right">{item.mileage.toLocaleString('pt-BR')} km</td>
+                        <td className="p-3 text-slate-600">{item.stationName}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">Nenhum registro de abastecimento encontrado.</p>
+            )}
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={handleOpenAddFuelingModal}
+                className="px-4 py-2 text-xs font-semibold rounded-lg transition-colors bg-sky-500 text-white hover:bg-sky-600 shadow-md shadow-sky-500/20"
+              >
+                Adicionar Novo Registro de Abastecimento
+              </button>
+            </div>
+            {/* End of Fueling History Section */}
+
           </div>
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
             <button type="button" onClick={onClose} className="modal-cancel-button px-5 py-2 text-sm font-semibold rounded-lg transition-colors bg-slate-100 text-slate-700 hover:bg-slate-200">Cancelar</button>
@@ -211,6 +283,11 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
         isOpen={isAddMaintenanceModalOpen}
         onClose={handleCloseAddMaintenanceModal}
         onSave={handleSaveMaintenanceRecord}
+      />
+      <AddFuelingRecordModal
+        isOpen={isAddFuelingModalOpen}
+        onClose={handleCloseAddFuelingModal}
+        onSave={handleSaveFuelingRecord}
       />
     </div>
   );

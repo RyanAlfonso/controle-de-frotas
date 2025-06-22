@@ -11,10 +11,14 @@ export interface MaintenanceHistoryItem {
 }
 
 export interface FuelingHistoryItem {
-    date: string;
-    liters: number;
-    totalCost: number;
-    station: string;
+  id: string; // Added for unique keying
+  date: string; // Existing
+  fuelType: string; // Added
+  liters: number; // Existing
+  pricePerLiter: number; // Added
+  totalCost: number; // Existing - this can be calculated (liters * pricePerLiter) or input directly.
+  mileage: number; // Added - KM at fueling
+  stationName: string; // Renamed from station for clarity
 }
 
 export type VehicleStatus = 'Ativo' | 'Em Manutenção' | 'Inativo' | 'Vendido';
