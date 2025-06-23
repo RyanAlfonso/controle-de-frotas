@@ -67,17 +67,19 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   // Example: Derive fleetStatusData from props or internal state if not passed directly
   // This is a simplified version based on the counts passed
   const derivedFleetStatusData: ChartData = {
-    labels: ['Ativos', 'Em Manutenção', 'Inativos'], // Updated labels
+    labels: ['Ativos', 'Em Manutenção', 'Inativos', 'Vendidos'], // Updated labels
     datasets: [{
         data: [
             vehicleStatusCounts['Ativo'] || 0,
             vehicleStatusCounts['Em Manutenção'] || 0,
             vehicleStatusCounts['Inativo'] || 0,
+            vehicleStatusCounts['Vendido'] || 0,
         ],
         backgroundColor: [
             'rgba(13, 148, 136, 0.8)', // Ativo - Teal
             'rgba(249, 115, 22, 0.8)',  // Em Manutenção - Orange
             'rgba(100, 116, 139, 0.8)', // Inativo - Slate
+            'rgba(239, 68, 68, 0.8)'    // Vendido - Red (example)
         ],
         borderColor: '#ffffff',
         borderWidth: 4,

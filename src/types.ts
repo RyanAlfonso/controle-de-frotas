@@ -25,6 +25,7 @@ export const VEHICLE_STATUSES = [
   "Ativo",
   "Em Manutenção",
   "Inativo",
+  "Vendido"
 ] as const;
 
 export type VehicleStatus = typeof VEHICLE_STATUSES[number]; // Ensure type is derived

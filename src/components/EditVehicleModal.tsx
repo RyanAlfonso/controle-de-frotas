@@ -173,6 +173,7 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ isOpen, onClose, on
                   <option>Ativo</option>
                   <option>Em Manutenção</option>
                   <option>Inativo</option>
+                  <option>Vendido</option>
                 </select>
               </div>
               <div>
