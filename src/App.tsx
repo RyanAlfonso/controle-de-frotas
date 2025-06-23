@@ -16,6 +16,9 @@ import {
   ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem, OSPayment, OSPaymentStatus // Import OSPayment types
 } from './types';
 
+// Define Theme type
+type Theme = 'light' | 'dark';
+
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
 
@@ -155,6 +158,35 @@ function App() {
   const [currentOSToInvoice, setCurrentOSToInvoice] = useState<ServiceOrder | null>(null);
   const [isRecordPaymentModalOpen, setIsRecordPaymentModalOpen] = useState(false); // State for RecordPaymentModal
   const [currentOSToRecordPayment, setCurrentOSToRecordPayment] = useState<ServiceOrder | null>(null); // State for OS to record payment
+
+  // Theme state
+  const [theme, setTheme] = useState<Theme>(() => {
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      return storedTheme;
+    }
+    // Optional: Check system preference
+    // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    //   return 'dark';
+    // }
+    return 'light'; // Default theme
+  });
+
+  // Effect to apply theme class and update localStorage
+  useEffect(() => {
+    const root = document.documentElement; // <html> tag
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -556,6 +588,8 @@ function App() {
         setActiveSection={handleNavigate}
         pageTitle={pageTitle}
         onLogout={handleLogout}
+        theme={theme} // Pass theme
+        onToggleTheme={toggleTheme} // Pass toggle function
         // Pass data and modal controls down
         vehicles={vehicles} // Pass vehicles for AddServiceOrderModal
         users={users}
