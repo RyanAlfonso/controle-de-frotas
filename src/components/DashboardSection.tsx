@@ -152,22 +152,43 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
           osChartInstanceRef.current.destroy();
         }
         osChartInstanceRef.current = new Chart(ctx, {
-          type: 'doughnut',
+          type: 'bar', // Changed to 'bar'
           data: derivedOSStatusData,
           options: {
             responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
+            maintainAspectRatio: false, // Keep this for sizing within container
+            indexAxis: 'x',
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1, // Ensure y-axis ticks are integers for counts
+                  color: '#64748b', // Example: slate-500 for y-axis labels
+                },
+                grid: {
+                  borderColor: '#e2e8f0', // Example: slate-200 for y-axis grid lines
+                  color: '#f1f5f9' // Example: slate-100 for y-axis grid lines color
+                }
+              },
+              x: {
+                ticks: {
+                  color: '#64748b', // Example: slate-500 for x-axis labels
+                },
+                grid: {
+                  display: false, // Often cleaner to hide x-axis grid lines for bar charts
+                }
+              }
+            },
             plugins: {
               legend: {
-                position: 'bottom',
+                position: 'bottom', // Or 'top', or display: false
                 labels: { color: '#475569', padding: 20, font: { size: 12 } }
               },
               title: {
                 display: true,
-                text: 'Distribuição de OS por Status',
+                text: 'Contagem de OS por Status', // Updated title
                 color: '#334155',
-                font: { size: 16, weight: '600' as '600' }, // Added 'as any' for type compatibility
+                font: { size: 16, weight: '600' as '600' },
                 padding: { top: 10, bottom: 20 }
               }
             }
@@ -185,31 +206,33 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 
   return (
     <section id="dashboard-section" className="page-section">
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPI_Card title="Frota Total" value={totalVehicles} bgColorClass="bg-blue-500" />
         <KPI_Card title="Veículos Ativos" value={vehicleStatusCounts['Ativo'] || 0} bgColorClass="bg-teal-500" />
         <KPI_Card title="Em Manutenção" value={vehicleStatusCounts['Em Manutenção'] || 0} bgColorClass="bg-orange-500" />
         <KPI_Card title="OS Ativas" value={totalActiveServiceOrders} bgColorClass="bg-yellow-500" />
       </div>
-      <div className="mt-8">
-        <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Status da Frota</h3>
-          <div className="chart-container">
+
+      {/* Charts Section - New Grid Wrapper */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* Fleet Chart Card - Item 1 */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Status da Frota</h3>
+          <div className="chart-container" style={{ height: '300px' }}>
             <canvas ref={chartRef} id="statusChart"></canvas>
           </div>
         </div>
-      </div>
 
-      {/* Service Order Status Summary Section */}
-      <div className="mt-8 bg-white p-6 border border-slate-200/80 rounded-xl shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-700 mb-4">Ordens de Serviço por Status</h3>
-        {/* Remove or comment out the existing grid display for osStatusCounts */}
-        {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-4"> ... </div> */}
-
-        {/* Add new chart section */}
-        <div className="chart-container mt-4"> {/* Add margin if needed */}
-          <canvas ref={osChartRef} id="osStatusChart"></canvas> {/* Give it a unique ID and assign ref */}
+        {/* OS Status Chart Card - Item 2 */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Ordens de Serviço por Status</h3>
+          <div className="chart-container" style={{ height: '300px' }}>
+            <canvas ref={osChartRef} id="osStatusChart"></canvas>
+          </div>
         </div>
+
       </div>
     </section>
   );
