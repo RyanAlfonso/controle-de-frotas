@@ -16,29 +16,13 @@ import {
   ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem, OSPayment, OSPaymentStatus // Import OSPayment types
 } from './types';
 
-// Define Theme type
-type Theme = 'light' | 'dark';
-
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
 
 // Initial Dummy Data (similar to original script)
 const initialVehicles: Vehicle[] = [
-    {
-      id: 'v1', marca: 'Volkswagen', modelo: 'Gol', ano: 2022, cor: 'Branco', placa: 'RKT-1A23', renavam: '12345678901', chassi: '9BWZZZ377VT123456', status: 'Ativo', km: 15000, initialMileage: 100, maintenanceHistory: [],
-      fuelingHistory: [
-        { id: 'fh1_v1', date: new Date(Date.now() - 86400000 * 30).toISOString(), fuelType: 'Gasolina Comum', liters: 30, pricePerLiter: 5.50, totalCost: 165.00, mileage: 13500, stationName: 'Posto Central' },
-        { id: 'fh2_v1', date: new Date(Date.now() - 86400000 * 15).toISOString(), fuelType: 'Etanol', liters: 35, pricePerLiter: 4.20, totalCost: 147.00, mileage: 14200, stationName: 'Posto PetroSol' },
-        { id: 'fh3_v1', date: new Date(Date.now() - 86400000 * 2).toISOString(), fuelType: 'Gasolina Aditivada', liters: 32, pricePerLiter: 5.80, totalCost: 185.60, mileage: 14850, stationName: 'Posto Shell Star' }
-      ]
-    },
-    {
-      id: 'v2', marca: 'Fiat', modelo: 'Strada', ano: 2023, cor: 'Prata', placa: 'BRZ-2B34', renavam: '12345678902', chassi: '9BDZZZ377VT123457', status: 'Ativo', km: 8000, initialMileage: 0, maintenanceHistory: [],
-      fuelingHistory: [
-        { id: 'fh1_v2', date: new Date(Date.now() - 86400000 * 20).toISOString(), fuelType: 'Diesel S10', liters: 50, pricePerLiter: 6.10, totalCost: 305.00, mileage: 6500, stationName: 'Posto RodoRede' },
-        { id: 'fh2_v2', date: new Date(Date.now() - 86400000 * 5).toISOString(), fuelType: 'Diesel S10', liters: 55, pricePerLiter: 6.15, totalCost: 338.25, mileage: 7300, stationName: 'Posto PetroSol' }
-      ]
-    },
+    { id: 'v1', marca: 'Volkswagen', modelo: 'Gol', ano: 2022, cor: 'Branco', placa: 'RKT-1A23', renavam: '12345678901', chassi: '9BWZZZ377VT123456', status: 'Ativo', km: 15000, initialMileage: 100, maintenanceHistory: [], fuelingHistory: [] },
+    { id: 'v2', marca: 'Fiat', modelo: 'Strada', ano: 2023, cor: 'Prata', placa: 'BRZ-2B34', renavam: '12345678902', chassi: '9BDZZZ377VT123457', status: 'Ativo', km: 8000, initialMileage: 0, maintenanceHistory: [], fuelingHistory: [] },
     { id: 'v3', marca: 'Chevrolet', modelo: 'Onix', ano: 2021, cor: 'Preto', placa: 'PBR-3C45', renavam: '12345678903', chassi: '9BGZZZ377VT123458', status: 'Em Manutenção', km: 32000, initialMileage: 15000, maintenanceHistory: [], fuelingHistory: [] },
 ];
 
@@ -115,38 +99,6 @@ const initialSuppliers: Supplier[] = [
     contatoPrincipal: 'Ana Paula',
     observacoes: 'Combustível de alta qualidade e loja de conveniência.',
     status: 'Ativo'
-  },
-  {
-    id: 'sup5',
-    nomeRazaoSocial: 'Lanternagem & Pintura Express Ltda',
-    nomeFantasia: 'LP Express',
-    cnpjCpf: '55.666.777/0001-00',
-    tipoFornecedor: ['Lanternagem', 'Oficina'],
-    endereco: 'Rua da Funilaria, 789',
-    cidade: 'Porto Alegre',
-    estado: 'RS',
-    cep: '90000-000',
-    telefone: '(51) 97654-3210',
-    email: 'contato@lpexpress.com.br',
-    contatoPrincipal: 'Ricardo Mendes',
-    observacoes: 'Serviços rápidos de lanternagem e pintura automotiva.',
-    status: 'Ativo'
-  },
-  {
-    id: 'sup6',
-    nomeRazaoSocial: 'Auto Elétrica Voltagem Certa ME',
-    nomeFantasia: 'Voltagem Certa',
-    cnpjCpf: '66.777.888/0001-22',
-    tipoFornecedor: ['Oficina', 'Outros'], // 'Outros' for specialized electrical
-    endereco: 'Av. dos Alternadores, 101',
-    cidade: 'Salvador',
-    estado: 'BA',
-    cep: '40000-000',
-    telefone: '(71) 96543-2109',
-    email: 'atendimento@voltagemcerta.com',
-    contatoPrincipal: 'Juliana Paes',
-    observacoes: 'Especializada em parte elétrica e ar condicionado. Venda de baterias.',
-    status: 'Ativo'
   }
 ];
 
@@ -173,77 +125,6 @@ const initialServiceOrders: ServiceOrder[] = [
     status: 'Aguardando Aprovação',
     budgets: [],
     payments: []
-  },
-  {
-    id: 'os_sample_3',
-    vehicleId: 'v3', // Assuming v3 exists
-    serviceType: 'Lanternagem Porta Direita',
-    problemDescription: 'Amassado na porta dianteira direita e risco no para-lama.',
-    requestDate: new Date(Date.now() - 86400000 * 10).toISOString(), // 10 days ago
-    requesterId: 'user_placeholder_id_123',
-    status: 'Faturada',
-    budgets: [{ id: 'bud1_os3', supplierId: 'sup5', budgetValue: 750.00, estimatedDeadline: '3 dias', budgetNotes: 'Pintura inclusa', isApproved: true }],
-    supplierId: 'sup5', // From approved budget
-    cost: 750.00,      // From approved budget
-    finalValue: 750.00, // Assuming same as budget
-    approvalDate: new Date(Date.now() - 86400000 * 8).toISOString(),
-    startDate: new Date(Date.now() - 86400000 * 7).toISOString(),
-    completionDate: new Date(Date.now() - 86400000 * 4).toISOString(),
-    completionNotes: 'Serviço finalizado, pintura ficou ótima.',
-    invoiceNumber: 'NF-00123',
-    invoiceDueDate: new Date(Date.now() + 86400000 * 25).toISOString(), // Due in 25 days
-    payments: [
-      { id: 'pay1_os3', paymentDate: new Date(Date.now() - 86400000 * 2).toISOString(), paidAmount: 750.00, paymentMethod: 'PIX', notes: 'Pagamento integral via PIX.' }
-    ],
-    paymentStatus: 'Pago'
-  },
-  {
-    id: 'os_sample_4',
-    vehicleId: 'v1',
-    serviceType: 'Problema Elétrico - Farol',
-    problemDescription: 'Farol baixo esquerdo não acende. Verificar fiação e lâmpada.',
-    requestDate: new Date(Date.now() - 86400000 * 5).toISOString(),
-    requesterId: 'user_placeholder_id_456',
-    status: 'Aprovada - Aguardando Execução',
-    budgets: [
-      { id: 'bud1_os4', supplierId: 'sup6', budgetValue: 120.00, estimatedDeadline: '2 horas', isApproved: true },
-      { id: 'bud2_os4', supplierId: 'sup1', budgetValue: 150.00, estimatedDeadline: '3 horas', isApproved: false }
-    ],
-    supplierId: 'sup6', // From approved budget
-    cost: 120.00,      // From approved budget
-    approvalDate: new Date(Date.now() - 86400000 * 3).toISOString()
-    // payments and paymentStatus will be undefined or default
-  },
-  {
-    id: 'os_sample_5',
-    vehicleId: 'v2',
-    serviceType: 'Manutenção Preventiva',
-    problemDescription: 'Revisão dos 20.000km conforme manual.',
-    requestDate: new Date(Date.now() - 86400000 * 1).toISOString(),
-    requesterId: 'user_placeholder_id_123',
-    status: 'Pendente de Orçamento',
-    budgets: [],
-    payments: [],
-  },
-  {
-    id: 'os_sample_6_faturada_pendente',
-    vehicleId: 'v2',
-    serviceType: 'Alinhamento e Balanceamento',
-    problemDescription: 'Veículo puxando para a direita.',
-    requestDate: new Date(Date.now() - 86400000 * 12).toISOString(),
-    requesterId: 'user_placeholder_id_456',
-    status: 'Faturada', // Directly Faturada
-    budgets: [{ id: 'bud1_os6', supplierId: 'sup2', budgetValue: 250.00, estimatedDeadline: '1 dia', isApproved: true }],
-    supplierId: 'sup2',
-    cost: 250.00,
-    finalValue: 250.00,
-    approvalDate: new Date(Date.now() - 86400000 * 11).toISOString(),
-    startDate: new Date(Date.now() - 86400000 * 10).toISOString(),
-    completionDate: new Date(Date.now() - 86400000 * 9).toISOString(),
-    invoiceNumber: 'NF-00456',
-    invoiceDueDate: new Date(Date.now() + 86400000 * 20).toISOString(),
-    payments: [], // No payments made yet
-    paymentStatus: 'Pendente' as OSPaymentStatus // Explicitly Pendente
   }
 ];
 
@@ -274,35 +155,6 @@ function App() {
   const [currentOSToInvoice, setCurrentOSToInvoice] = useState<ServiceOrder | null>(null);
   const [isRecordPaymentModalOpen, setIsRecordPaymentModalOpen] = useState(false); // State for RecordPaymentModal
   const [currentOSToRecordPayment, setCurrentOSToRecordPayment] = useState<ServiceOrder | null>(null); // State for OS to record payment
-
-  // Theme state
-  const [theme, setTheme] = useState<Theme>(() => {
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      return storedTheme;
-    }
-    // Optional: Check system preference
-    // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    //   return 'dark';
-    // }
-    return 'light'; // Default theme
-  });
-
-  // Effect to apply theme class and update localStorage
-  useEffect(() => {
-    const root = document.documentElement; // <html> tag
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // Toggle theme function
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -624,22 +476,6 @@ function App() {
     setServiceOrders(prevServiceOrders =>
       prevServiceOrders.map(order => {
         if (order.id === osId) {
-          // Ensure payments array exists and set initial payment status
-          const existingPayments = order.payments || [];
-          let paymentStatusOnInvoice: OSPaymentStatus = 'Pendente';
-
-          // This logic is more for handleRecordPayment, but if an OS could somehow be Faturada
-          // with pre-existing payments (e.g. an advance payment before invoicing), this would catch it.
-          // For a standard flow, Faturada implies no payments have been made against this invoice yet.
-          if (existingPayments.length > 0) {
-            const totalPaid = existingPayments.reduce((sum, p) => sum + p.paidAmount, 0);
-            if (totalPaid >= (invoiceData.finalValue || 0) - 0.001) {
-              paymentStatusOnInvoice = 'Pago';
-            } else {
-              paymentStatusOnInvoice = 'Parcialmente Pago';
-            }
-          }
-
           return {
             ...order,
             status: 'Faturada' as ServiceOrderStatus,
@@ -647,8 +483,8 @@ function App() {
             invoiceDueDate: invoiceData.invoiceDueDate,
             finalValue: invoiceData.finalValue,
             valueJustification: invoiceData.valueJustification || order.valueJustification,
-            payments: existingPayments,
-            paymentStatus: paymentStatusOnInvoice,
+            payments: order.payments || [], // Ensure payments array exists
+            paymentStatus: 'Pendente' as OSPaymentStatus, // Set initial payment status
           };
         }
         return order;
@@ -720,8 +556,6 @@ function App() {
         setActiveSection={handleNavigate}
         pageTitle={pageTitle}
         onLogout={handleLogout}
-        theme={theme} // Pass theme
-        onToggleTheme={toggleTheme} // Pass toggle function
         // Pass data and modal controls down
         vehicles={vehicles} // Pass vehicles for AddServiceOrderModal
         users={users}
