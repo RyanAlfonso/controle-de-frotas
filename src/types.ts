@@ -21,7 +21,14 @@ export interface FuelingHistoryItem {
   stationName: string; // Renamed from station for clarity
 }
 
-export type VehicleStatus = 'Ativo' | 'Em Manutenção' | 'Inativo' | 'Vendido';
+export const VEHICLE_STATUSES = [
+  "Ativo",
+  "Em Manutenção",
+  "Inativo",
+  "Vendido"
+] as const;
+
+export type VehicleStatus = typeof VEHICLE_STATUSES[number]; // Ensure type is derived
 
 export interface Vehicle {
     id: string; // Add an ID for keying in React lists

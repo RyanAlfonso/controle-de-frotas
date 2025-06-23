@@ -70,10 +70,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
       case 'dashboard':
         return (
           <DashboardSection
-            totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
-            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
-            pendingOS={pendingOSCount}
+            vehicles={vehicles} // Pass the full vehicles array
+            serviceOrders={serviceOrders}
             // fleetStatusData will be derived or passed if more complex
           />
         );
@@ -135,10 +133,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         );
       default:
         return <DashboardSection /* Default to dashboard or a placeholder */
-            totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
-            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
-            pendingOS={pendingOSCount}
+            vehicles={vehicles} // Pass vehicles here too
+            serviceOrders={serviceOrders} // And serviceOrders
+            // pendingOS={pendingOSCount} // Remove pendingOSCount from default case too
         />;
     }
   };
