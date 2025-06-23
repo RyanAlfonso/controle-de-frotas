@@ -87,7 +87,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onSa
                   <option>Ativo</option>
                   <option>Em Manutenção</option>
                   <option>Inativo</option>
-                  <option>Vendido</option>
                 </select>
               </div>
               <div>
