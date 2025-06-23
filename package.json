@@ -3,27 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "chart.js": "^3.9.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "chart.js": "^3.9.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "typescript": "^4.9.5",
+    "@types/node": "^18.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/node": "^18.0.0",
-    "@types/jest": "^29.0.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "start": "echo 'Run a dev server like Vite or react-scripts start'",
-    "build": "echo 'Run a build tool like Vite or react-scripts build'",
-    "test": "echo 'Run tests'"
+    "build": "echo 'Run a build tool like Vite or react-scripts build'"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {

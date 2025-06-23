@@ -4,22 +4,41 @@ import Header from './Header';
 import DashboardSection from './DashboardSection';
 import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
-import { Vehicle, User } from '../types'; // Assuming types.ts is populated
+import SuppliersSection from './SuppliersSection';
+import ServiceOrdersSection from './ServiceOrdersSection';
+import FinancialReportsSection from './FinancialReportsSection'; // Import FinancialReportsSection
+import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus, ServiceOrder } from '../types';
 
 interface MainApplicationProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   pageTitle: string;
   onLogout: () => void;
+  theme: 'light' | 'dark'; // Added theme prop
+  onToggleTheme: () => void; // Added onToggleTheme prop
 
   // Data props
-  vehicles: Vehicle[];
+  vehicles: Vehicle[]; // Already present, ensure it's passed for OS modal
   users: User[];
+  suppliers: Supplier[];
+  serviceOrders: ServiceOrder[]; // Add serviceOrders prop
   pendingOSCount: number;
 
   // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
+  onOpenSupplierModal: () => void;
+  onOpenEditSupplierModal: (supplier: Supplier) => void;
+  onOpenAddServiceOrderModal: () => void;
+  onOpenAddOSBudgetModal: (serviceOrderId: string) => void;
+  onOpenViewOSBudgetsModal: (serviceOrder: ServiceOrder) => void;
+  onStartOSExecution: (serviceOrderId: string) => void;
+  onOpenCompleteOSModal: (serviceOrderId: string) => void;
+  onOpenInvoiceOSModal: (serviceOrderId: string) => void;
+  onOpenRecordPaymentModal: (serviceOrderId: string) => void; // Added new prop
+  onEditVehicle: (updatedVehicleData: Vehicle) => void;
+  onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
+  onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
 }
 
 const MainApplication: React.FC<MainApplicationProps> = ({
@@ -27,11 +46,27 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   setActiveSection,
   pageTitle,
   onLogout,
+  theme, // Destructure theme
+  onToggleTheme, // Destructure onToggleTheme
   vehicles,
   users,
+  suppliers,
+  serviceOrders, // Destructure serviceOrders
   pendingOSCount,
   onOpenVehicleModal,
-  onOpenUserModal
+  onOpenUserModal,
+  onOpenSupplierModal,
+  onOpenEditSupplierModal,
+  onOpenAddServiceOrderModal,
+  onOpenAddOSBudgetModal,
+  onOpenViewOSBudgetsModal,
+  onStartOSExecution,
+  onOpenCompleteOSModal,
+  onOpenInvoiceOSModal,
+  onOpenRecordPaymentModal, // Destructure new prop
+  onEditVehicle,
+  onSetVehicleStatus,
+  onSetSupplierStatus
 }) => {
 
   const renderSection = () => {
@@ -39,10 +74,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
       case 'dashboard':
         return (
           <DashboardSection
-            totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
-            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
-            pendingOS={pendingOSCount}
+            vehicles={vehicles} // Pass the full vehicles array
+            serviceOrders={serviceOrders}
             // fleetStatusData will be derived or passed if more complex
           />
         );
@@ -51,7 +84,48 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           <VehiclesSection
             vehicles={vehicles}
             onAddVehicle={onOpenVehicleModal}
+            onEditVehicle={onEditVehicle}
+            onSetVehicleStatus={onSetVehicleStatus} // Pass it down
             // onFilterChange will be added
+          />
+        );
+      case 'suppliers': // Add case for suppliers
+        return (
+          <SuppliersSection
+            suppliers={suppliers}
+            onOpenAddSupplierModal={onOpenSupplierModal}
+            onOpenEditSupplierModal={onOpenEditSupplierModal}
+            onSetSupplierStatus={onSetSupplierStatus}
+          />
+        );
+      case 'serviceOrders': // Add case for service orders
+        return (
+          // <ServiceOrdersSection
+          //   serviceOrders={serviceOrders}
+          //   vehicles={vehicles}
+          <ServiceOrdersSection
+            serviceOrders={serviceOrders}
+            vehicles={vehicles}
+            users={users}
+            suppliers={suppliers} // Added suppliers prop here
+            onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
+            onOpenAddOSBudgetModal={onOpenAddOSBudgetModal}
+            onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}
+            onStartOSExecution={onStartOSExecution}
+            onOpenCompleteOSModal={onOpenCompleteOSModal}
+            onOpenInvoiceOSModal={onOpenInvoiceOSModal}
+            onOpenRecordPaymentModal={onOpenRecordPaymentModal}
+          />
+        );
+      case 'financialReports': // Added case for financial reports
+        return (
+          // <FinancialReportsSection
+          //   serviceOrders={serviceOrders}
+          //   vehicles={vehicles}
+          <FinancialReportsSection
+            serviceOrders={serviceOrders}
+            vehicles={vehicles}
+            suppliers={suppliers}
           />
         );
       case 'users':
@@ -63,10 +137,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         );
       default:
         return <DashboardSection /* Default to dashboard or a placeholder */
-            totalVehicles={vehicles.length}
-            activeVehicles={vehicles.filter(v => v.status === 'Ativo').length}
-            maintenanceVehicles={vehicles.filter(v => v.status === 'Em Manutenção').length}
-            pendingOS={pendingOSCount}
+            vehicles={vehicles} // Pass vehicles here too
+            serviceOrders={serviceOrders} // And serviceOrders
+            // pendingOS={pendingOSCount} // Remove pendingOSCount from default case too
         />;
     }
   };
@@ -79,8 +152,13 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         activeSection={activeSection}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header pageTitle={pageTitle} />
-        <main className="flex-1 p-6 overflow-y-auto bg-slate-100">
+        <Header
+          pageTitle={pageTitle}
+          onLogout={onLogout}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
+        />
+        <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
           {renderSection()}
         </main>
       </div>
