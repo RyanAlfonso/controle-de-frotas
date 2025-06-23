@@ -224,6 +224,26 @@ const initialServiceOrders: ServiceOrder[] = [
     status: 'Pendente de Orçamento',
     budgets: [],
     payments: [],
+  },
+  {
+    id: 'os_sample_6_faturada_pendente',
+    vehicleId: 'v2',
+    serviceType: 'Alinhamento e Balanceamento',
+    problemDescription: 'Veículo puxando para a direita.',
+    requestDate: new Date(Date.now() - 86400000 * 12).toISOString(),
+    requesterId: 'user_placeholder_id_456',
+    status: 'Faturada', // Directly Faturada
+    budgets: [{ id: 'bud1_os6', supplierId: 'sup2', budgetValue: 250.00, estimatedDeadline: '1 dia', isApproved: true }],
+    supplierId: 'sup2',
+    cost: 250.00,
+    finalValue: 250.00,
+    approvalDate: new Date(Date.now() - 86400000 * 11).toISOString(),
+    startDate: new Date(Date.now() - 86400000 * 10).toISOString(),
+    completionDate: new Date(Date.now() - 86400000 * 9).toISOString(),
+    invoiceNumber: 'NF-00456',
+    invoiceDueDate: new Date(Date.now() + 86400000 * 20).toISOString(),
+    payments: [], // No payments made yet
+    paymentStatus: 'Pendente' as OSPaymentStatus // Explicitly Pendente
   }
 ];
 
@@ -604,6 +624,22 @@ function App() {
     setServiceOrders(prevServiceOrders =>
       prevServiceOrders.map(order => {
         if (order.id === osId) {
+          // Ensure payments array exists and set initial payment status
+          const existingPayments = order.payments || [];
+          let paymentStatusOnInvoice: OSPaymentStatus = 'Pendente';
+
+          // This logic is more for handleRecordPayment, but if an OS could somehow be Faturada
+          // with pre-existing payments (e.g. an advance payment before invoicing), this would catch it.
+          // For a standard flow, Faturada implies no payments have been made against this invoice yet.
+          if (existingPayments.length > 0) {
+            const totalPaid = existingPayments.reduce((sum, p) => sum + p.paidAmount, 0);
+            if (totalPaid >= (invoiceData.finalValue || 0) - 0.001) {
+              paymentStatusOnInvoice = 'Pago';
+            } else {
+              paymentStatusOnInvoice = 'Parcialmente Pago';
+            }
+          }
+
           return {
             ...order,
             status: 'Faturada' as ServiceOrderStatus,
@@ -611,8 +647,8 @@ function App() {
             invoiceDueDate: invoiceData.invoiceDueDate,
             finalValue: invoiceData.finalValue,
             valueJustification: invoiceData.valueJustification || order.valueJustification,
-            payments: order.payments || [], // Ensure payments array exists
-            paymentStatus: 'Pendente' as OSPaymentStatus, // Set initial payment status
+            payments: existingPayments,
+            paymentStatus: paymentStatusOnInvoice,
           };
         }
         return order;
