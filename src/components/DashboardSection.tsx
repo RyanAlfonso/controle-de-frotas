@@ -61,6 +61,9 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<any>(null);
 
+  const osChartRef = useRef<HTMLCanvasElement>(null); // New ref for OS chart
+  const osChartInstanceRef = useRef<any>(null); // New ref for OS chart instance
+
   // Example: Derive fleetStatusData from props or internal state if not passed directly
   // This is a simplified version based on the counts passed
   const derivedFleetStatusData: ChartData = {
@@ -71,7 +74,6 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
             vehicleStatusCounts['Em Manutenção'] || 0,
             vehicleStatusCounts['Inativo'] || 0,
             vehicleStatusCounts['Vendido'] || 0,
-            // Math.max(0, totalVehicles - (vehicleStatusCounts['Ativo'] || 0) - (vehicleStatusCounts['Em Manutenção'] || 0)) // Old 'Outros'
         ],
         backgroundColor: [
             'rgba(13, 148, 136, 0.8)', // Ativo - Teal
@@ -85,6 +87,25 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     }]
   };
 
+  // Prepare data for the OS Status Doughnut Chart
+  const derivedOSStatusData: ChartData = {
+    labels: SERVICE_ORDER_STATUSES as unknown as string[],
+    datasets: [{
+      data: SERVICE_ORDER_STATUSES.map(status => osStatusCounts[status] || 0),
+      backgroundColor: [
+        'rgba(251, 191, 36, 0.8)', // Pendente de Orçamento - Amber
+        'rgba(59, 130, 246, 0.8)',  // Aguardando Aprovação - Blue
+        'rgba(14, 165, 233, 0.8)', // Aprovada - Aguardando Execução - Sky
+        'rgba(99, 102, 241, 0.8)',  // Em Andamento - Indigo
+        'rgba(16, 185, 129, 0.8)', // Concluída - Emerald/Green
+        'rgba(168, 85, 247, 0.8)',  // Faturada - Purple
+        'rgba(239, 68, 68, 0.8)'    // Cancelada - Red
+      ],
+      borderColor: '#ffffff',
+      borderWidth: 4,
+      hoverOffset: 8
+    }]
+  };
 
   useEffect(() => {
     if (chartRef.current && derivedFleetStatusData) {
@@ -122,6 +143,46 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     };
   }, [derivedFleetStatusData]); // Re-run effect if data changes
 
+  // useEffect for OS Status Doughnut Chart
+  useEffect(() => {
+    if (osChartRef.current && derivedOSStatusData) {
+      const ctx = osChartRef.current.getContext('2d');
+      if (ctx) {
+        if (osChartInstanceRef.current) {
+          osChartInstanceRef.current.destroy();
+        }
+        osChartInstanceRef.current = new Chart(ctx, {
+          type: 'doughnut',
+          data: derivedOSStatusData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { color: '#475569', padding: 20, font: { size: 12 } }
+              },
+              title: {
+                display: true,
+                text: 'Distribuição de OS por Status',
+                color: '#334155',
+                font: { size: 16, weight: '600' as '600' }, // Added 'as any' for type compatibility
+                padding: { top: 10, bottom: 20 }
+              }
+            }
+          }
+        });
+      }
+    }
+    return () => {
+      if (osChartInstanceRef.current) {
+        osChartInstanceRef.current.destroy();
+        osChartInstanceRef.current = null;
+      }
+    };
+  }, [derivedOSStatusData]); // Re-run if OS data changes
+
   return (
     <section id="dashboard-section" className="page-section">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -142,16 +203,12 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       {/* Service Order Status Summary Section */}
       <div className="mt-8 bg-white p-6 border border-slate-200/80 rounded-xl shadow-sm">
         <h3 className="text-lg font-semibold text-slate-700 mb-4">Ordens de Serviço por Status</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-4">
-          {/* Adjusted lg:grid-cols-3 for potentially 6 status items to fit well */}
-          {SERVICE_ORDER_STATUSES.map(status => (
-            <div key={status} className="p-3 bg-slate-50 rounded-lg shadow-sm">
-              <dt className="text-sm font-medium text-slate-500 truncate" title={status}>{status}</dt>
-              <dd className="mt-1 text-3xl font-semibold text-slate-700">
-                {osStatusCounts[status] !== undefined ? osStatusCounts[status] : 0}
-              </dd>
-            </div>
-          ))}
+        {/* Remove or comment out the existing grid display for osStatusCounts */}
+        {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 gap-4"> ... </div> */}
+
+        {/* Add new chart section */}
+        <div className="chart-container mt-4"> {/* Add margin if needed */}
+          <canvas ref={osChartRef} id="osStatusChart"></canvas> {/* Give it a unique ID and assign ref */}
         </div>
       </div>
     </section>
