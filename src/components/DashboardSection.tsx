@@ -81,7 +81,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 
   // Vehicle Status Data
   const derivedFleetStatusData: ChartData = {
-    labels: ['Ativos', 'Em Manutenção', 'Inativos'], // Updated labels
+    labels: ['Ativos', 'Em Manutenção', 'Inativos', 'Vendidos'], // Updated labels
     datasets: [{
         data: [
             vehicleStatusCounts['Ativo'] || 0,
@@ -94,6 +94,8 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
             'rgba(249, 115, 22, 0.8)',  // Em Manutenção - Orange
             'rgba(100, 116, 139, 0.8)', // Inativo - Slate
             // 'rgba(239, 68, 68, 0.8)'    // Vendido - Red (example) // Removed
+
+            'rgba(239, 68, 68, 0.8)'    // Vendido - Red (example)
         ],
         borderColor: '#ffffff',
         borderWidth: 4,

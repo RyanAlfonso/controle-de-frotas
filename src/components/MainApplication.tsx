@@ -48,6 +48,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onLogout,
   // theme, // Removed theme prop
   // onToggleTheme, // Removed onToggleTheme prop
+=======
   vehicles,
   users,
   suppliers,
@@ -160,6 +161,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           // onToggleTheme={onToggleTheme} // Removed onToggleTheme prop
         />
         <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
+=======
+        <Header pageTitle={pageTitle} />
+        <main className="flex-1 p-6 overflow-y-auto bg-slate-100">
           {renderSection()}
         </main>
       </div>
