@@ -6,7 +6,7 @@ import VehiclesSection from './VehiclesSection';
 import UsersSection from './UsersSection';
 import SuppliersSection from './SuppliersSection';
 import ServiceOrdersSection from './ServiceOrdersSection';
-import FinancialReportsSection from './FinancialReportsSection'; // Import FinancialReportsSection
+import FinancialReportsSection from './FinancialReportsSection';
 import { Vehicle, User, VehicleStatus, Supplier, SupplierStatus, ServiceOrder } from '../types';
 
 interface MainApplicationProps {
@@ -14,17 +14,11 @@ interface MainApplicationProps {
   setActiveSection: (section: string) => void;
   pageTitle: string;
   onLogout: () => void;
-  // theme: 'light' | 'dark'; // Removed theme prop
-  // onToggleTheme: () => void; // Removed onToggleTheme prop
-
-  // Data props
   vehicles: Vehicle[];
   users: User[];
   suppliers: Supplier[];
-  serviceOrders: ServiceOrder[]; // Add serviceOrders prop
+  serviceOrders: ServiceOrder[];
   pendingOSCount: number;
-
-  // Modal control props
   onOpenVehicleModal: () => void;
   onOpenUserModal: () => void;
   onOpenSupplierModal: () => void;
@@ -35,7 +29,7 @@ interface MainApplicationProps {
   onStartOSExecution: (serviceOrderId: string) => void;
   onOpenCompleteOSModal: (serviceOrderId: string) => void;
   onOpenInvoiceOSModal: (serviceOrderId: string) => void;
-  onOpenRecordPaymentModal: (serviceOrderId: string) => void; // Added new prop
+  onOpenRecordPaymentModal: (serviceOrderId: string) => void;
   onEditVehicle: (updatedVehicleData: Vehicle) => void;
   onSetVehicleStatus: (vehicleId: string, status: VehicleStatus) => void;
   onSetSupplierStatus: (supplierId: string, status: SupplierStatus) => void;
@@ -46,13 +40,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   setActiveSection,
   pageTitle,
   onLogout,
-  // theme, // Removed theme prop
-  // onToggleTheme, // Removed onToggleTheme prop
-=======
   vehicles,
   users,
   suppliers,
-  serviceOrders, // Destructure serviceOrders
+  serviceOrders,
   pendingOSCount,
   onOpenVehicleModal,
   onOpenUserModal,
@@ -64,7 +55,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   onStartOSExecution,
   onOpenCompleteOSModal,
   onOpenInvoiceOSModal,
-  onOpenRecordPaymentModal, // Destructure new prop
+  onOpenRecordPaymentModal,
   onEditVehicle,
   onSetVehicleStatus,
   onSetSupplierStatus
@@ -77,8 +68,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           <DashboardSection
             vehicles={vehicles}
             serviceOrders={serviceOrders}
-            suppliers={suppliers} // Pass suppliers to DashboardSection
-            // fleetStatusData will be derived or passed if more complex
+            suppliers={suppliers}
           />
         );
       case 'vehicles':
@@ -87,11 +77,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             vehicles={vehicles}
             onAddVehicle={onOpenVehicleModal}
             onEditVehicle={onEditVehicle}
-            onSetVehicleStatus={onSetVehicleStatus} // Pass it down
-            // onFilterChange will be added
+            onSetVehicleStatus={onSetVehicleStatus}
           />
         );
-      case 'suppliers': // Add case for suppliers
+      case 'suppliers':
         return (
           <SuppliersSection
             suppliers={suppliers}
@@ -100,16 +89,13 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onSetSupplierStatus={onSetSupplierStatus}
           />
         );
-      case 'serviceOrders': // Add case for service orders
+      case 'serviceOrders':
         return (
-          // <ServiceOrdersSection
-          //   serviceOrders={serviceOrders}
-          //   vehicles={vehicles}
           <ServiceOrdersSection
             serviceOrders={serviceOrders}
             vehicles={vehicles}
             users={users}
-            suppliers={suppliers} // Added suppliers prop here
+            suppliers={suppliers}
             onOpenAddServiceOrderModal={onOpenAddServiceOrderModal}
             onOpenAddOSBudgetModal={onOpenAddOSBudgetModal}
             onOpenViewOSBudgetsModal={onOpenViewOSBudgetsModal}
@@ -119,11 +105,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
             onOpenRecordPaymentModal={onOpenRecordPaymentModal}
           />
         );
-      case 'financialReports': // Added case for financial reports
+      case 'financialReports':
         return (
-          // <FinancialReportsSection
-          //   serviceOrders={serviceOrders}
-          //   vehicles={vehicles}
           <FinancialReportsSection
             serviceOrders={serviceOrders}
             vehicles={vehicles}
@@ -141,7 +124,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         return <DashboardSection
             vehicles={vehicles}
             serviceOrders={serviceOrders}
-            suppliers={suppliers} // Also pass suppliers in default case
+            suppliers={suppliers}
         />;
     }
   };
@@ -157,13 +140,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         <Header
           pageTitle={pageTitle}
           onLogout={onLogout}
-          // theme={theme} // Removed theme prop
-          // onToggleTheme={onToggleTheme} // Removed onToggleTheme prop
         />
         <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
-=======
-        <Header pageTitle={pageTitle} />
-        <main className="flex-1 p-6 overflow-y-auto bg-slate-100">
           {renderSection()}
         </main>
       </div>

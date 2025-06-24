@@ -16,13 +16,6 @@ import {
   ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem, OSPayment, OSPaymentStatus // Import OSPayment types
 } from './types';
 
-// Define Theme type - REMOVING
-// type Theme = 'light' | 'dark';
-
-
-// Placeholder for Chart.js type, if not globally declared elsewhere accessible
-// declare var Chart: any;
-
 // Initial Dummy Data (similar to original script)
 const initialVehicles: Vehicle[] = [
     { id: 'v1', marca: 'Volkswagen', modelo: 'Gol', ano: 2022, cor: 'Branco', placa: 'RKT-1A23', renavam: '12345678901', chassi: '9BWZZZ377VT123456', status: 'Ativo', km: 15000, initialMileage: 100, maintenanceHistory: [], fuelingHistory: [] },
@@ -267,36 +260,6 @@ function App() {
   const [isRecordPaymentModalOpen, setIsRecordPaymentModalOpen] = useState(false); // State for RecordPaymentModal
   const [currentOSToRecordPayment, setCurrentOSToRecordPayment] = useState<ServiceOrder | null>(null); // State for OS to record payment
 
-  // Theme state and logic REMOVED
-  // const [theme, setTheme] = useState<Theme>(() => {
-  //   const storedTheme = localStorage.getItem('theme') as Theme | null;
-  //   if (storedTheme === 'light' || storedTheme === 'dark') {
-  //     return storedTheme;
-  //   }
-  //   // Optional: Check system preference
-  //   // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  //   //   return 'dark';
-  //   // }
-  //   return 'light'; // Default theme
-  // });
-
-  // Effect to apply theme class and update localStorage - REMOVED
-  // useEffect(() => {
-  //   const root = document.documentElement; // <html> tag
-  //   if (theme === 'dark') {
-  //     root.classList.add('dark');
-  //   } else {
-  //     root.classList.remove('dark');
-  //   }
-  //   localStorage.setItem('theme', theme);
-  // }, [theme]);
-
-  // Toggle theme function - REMOVED
-  // const toggleTheme = () => {
-  //   setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  // };
-
-
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
     'vehicles': 'Gerenciamento de Frota',
@@ -324,12 +287,11 @@ function App() {
   };
 
   const handleSaveVehicle = (vehicleData: any) => {
-    // Type assertion for vehicleData, or ensure AddVehicleModal returns strongly typed data
     const newVehicle: Vehicle = {
       ...vehicleData,
-      id: `v${vehicles.length + 1}`, // Simple ID generation
-      ano: parseInt(vehicleData.ano), // Ensure year is number
-      km: parseInt(vehicleData.km),   // Ensure km is number
+      id: `v${vehicles.length + 1}`,
+      ano: parseInt(vehicleData.ano),
+      km: parseInt(vehicleData.km),
       maintenanceHistory: [],
       fuelingHistory: []
     };
@@ -343,7 +305,6 @@ function App() {
         vehicle.id === updatedVehicleData.id ? { ...vehicle, ...updatedVehicleData } : vehicle
       )
     );
-    // No modal to close here as EditVehicleModal has its own close mechanism
   };
 
   const handleSetVehicleStatus = (vehicleId: string, status: VehicleStatus) => {
@@ -355,10 +316,9 @@ function App() {
   };
 
   const handleSaveUser = (userData: any) => {
-    // Type assertion for userData
     const newUser: User = {
       ...userData,
-      id: `u${users.length + 1}` // Simple ID generation
+      id: `u${users.length + 1}`
     };
     setUsers(prev => [...prev, newUser]);
     setIsUserModalOpen(false);
@@ -366,12 +326,12 @@ function App() {
 
   const actualHandleAddSupplierLogic = (supplierData: Omit<Supplier, 'id'>) => {
     const newSupplier: Supplier = {
-      id: `sup${suppliers.length + 1}`, // Simple ID generation
+      id: `sup${suppliers.length + 1}`,
       ...supplierData,
-      status: 'Ativo', // Ensure new suppliers default to 'Ativo'
+      status: 'Ativo',
     };
     setSuppliers(prevSuppliers => [...prevSuppliers, newSupplier]);
-    setIsSupplierModalOpen(false); // Close modal on save
+    setIsSupplierModalOpen(false);
   };
 
   const handleOpenEditSupplierModal = (supplier: Supplier) => {
@@ -390,7 +350,7 @@ function App() {
         supplier.id === updatedSupplierData.id ? updatedSupplierData : supplier
       )
     );
-    handleCloseEditSupplierModal(); // Close the modal after saving
+    handleCloseEditSupplierModal();
   };
 
   const handleSetSupplierStatus = (supplierId: string, status: SupplierStatus) => {
@@ -411,11 +371,10 @@ function App() {
       requesterId: 'user_placeholder_id_123',
       status: 'Pendente de Orçamento' as ServiceOrderStatus,
       budgets: [],
-      payments: [], // Initialize with empty array
-      // paymentStatus will be undefined initially
+      payments: [],
     };
     setServiceOrders(prevServiceOrders => [...prevServiceOrders, newServiceOrder]);
-    setIsAddServiceOrderModalOpen(false); // Close modal on save
+    setIsAddServiceOrderModalOpen(false);
   };
 
   const handleOpenAddOSBudgetModal = (serviceOrderId: string) => {
@@ -439,7 +398,7 @@ function App() {
         if (order.id === currentServiceOrderForBudgetingId) {
           const newBudget: ServiceOrderBudget = {
             ...budgetData,
-            id: `bud${(order.budgets?.length || 0) + 1}_${order.id.substring(0,4)}_${Math.random().toString(36).substring(2, 7)}`, // Unique budget ID
+            id: `bud${(order.budgets?.length || 0) + 1}_${order.id.substring(0,4)}_${Math.random().toString(36).substring(2, 7)}`,
           };
           return {
             ...order,
@@ -449,7 +408,7 @@ function App() {
         return order;
       })
     );
-    handleCloseAddOSBudgetModal(); // Close the modal after saving
+    handleCloseAddOSBudgetModal();
   };
 
   const handleOpenViewOSBudgetsModal = (serviceOrder: ServiceOrder) => {
@@ -481,7 +440,7 @@ function App() {
               approvedBudgetValue = budget.budgetValue;
               return { ...budget, isApproved: true };
             }
-            return { ...budget, isApproved: false }; // Ensure others are not approved
+            return { ...budget, isApproved: false };
           });
           return {
             ...order,
@@ -494,7 +453,7 @@ function App() {
         return order;
       })
     );
-    handleCloseViewOSBudgetsModal(); // Close the modal after approval
+    handleCloseViewOSBudgetsModal();
   };
 
   const handleStartOSExecution = (serviceOrderId: string) => {
@@ -503,14 +462,13 @@ function App() {
         if (order.id === serviceOrderId && order.status === 'Aprovada - Aguardando Execução') {
           return {
             ...order,
-            status: 'Em Andamento' as ServiceOrderStatus, // Corrected to use existing status "Em Andamento"
-            startDate: new Date().toISOString(), // Set current date as execution start date
+            status: 'Em Andamento' as ServiceOrderStatus,
+            startDate: new Date().toISOString(),
           };
         }
         return order;
       })
     );
-    // No modal to close for this direct action
   };
 
   const handleOpenCompleteOSModal = (serviceOrderId: string) => {
@@ -537,7 +495,6 @@ function App() {
     const osId = currentOSToComplete.id;
     const vehicleId = currentOSToComplete.vehicleId;
 
-    // Update Service Order
     setServiceOrders(prevServiceOrders =>
       prevServiceOrders.map(order => {
         if (order.id === osId) {
@@ -552,12 +509,10 @@ function App() {
       })
     );
 
-    // Generate and Add Maintenance History Item to the Vehicle
     const supplierForHistory = suppliers.find(s => s.id === currentOSToComplete.supplierId);
     const supplierNameForHistory = supplierForHistory ? (supplierForHistory.nomeFantasia || supplierForHistory.nomeRazaoSocial) : 'Fornecedor não especificado';
 
     const newMaintenanceItem: MaintenanceHistoryItem = {
-      // id will be generated if needed by a backend or a more robust local ID strategy
       date: completionData.completionDate,
       type: currentOSToComplete.serviceType,
       description: `OS Concluída: ${currentOSToComplete.problemDescription}${completionData.completionNotes ? ` - Obs. Conclusão: ${completionData.completionNotes}` : ''}`,
@@ -578,12 +533,7 @@ function App() {
       })
     );
 
-    handleCloseCompleteOSModal(); // Close the modal
-  };
-
-  const handleOpenInvoiceOSModalPlaceholder = (serviceOrderId: string) => {
-    console.log("Request to open Invoice OS Modal for OS ID:", serviceOrderId);
-    // Actual state and modal opening logic will be implemented in a later step
+    handleCloseCompleteOSModal();
   };
 
   const handleOpenInvoiceOSModal = (serviceOrderId: string) => {
@@ -624,14 +574,14 @@ function App() {
             invoiceDueDate: invoiceData.invoiceDueDate,
             finalValue: invoiceData.finalValue,
             valueJustification: invoiceData.valueJustification || order.valueJustification,
-            payments: order.payments || [], // Ensure payments array exists
-            paymentStatus: 'Pendente' as OSPaymentStatus, // Set initial payment status
+            payments: order.payments || [],
+            paymentStatus: 'Pendente' as OSPaymentStatus,
           };
         }
         return order;
       })
     );
-    handleCloseInvoiceOSModal(); // Close the modal
+    handleCloseInvoiceOSModal();
   };
 
   const handleOpenRecordPaymentModal = (serviceOrderId: string) => {
@@ -697,15 +647,11 @@ function App() {
         setActiveSection={handleNavigate}
         pageTitle={pageTitle}
         onLogout={handleLogout}
-        // theme={theme} // Removed theme prop
-        // onToggleTheme={toggleTheme} // Removed onToggleTheme prop
-=======
-        // Pass data and modal controls down
         vehicles={vehicles}
         users={users}
-        suppliers={suppliers} // Pass suppliers for Dashboard
-        serviceOrders={serviceOrders} // Pass serviceOrders for Dashboard
-        pendingOSCount={pendingOS.length} // This might be derived from serviceOrders later
+        suppliers={suppliers}
+        serviceOrders={serviceOrders}
+        pendingOSCount={pendingOS.length}
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
         onOpenSupplierModal={() => setIsSupplierModalOpen(true)}
@@ -716,7 +662,7 @@ function App() {
         onStartOSExecution={handleStartOSExecution}
         onOpenCompleteOSModal={handleOpenCompleteOSModal}
         onOpenInvoiceOSModal={handleOpenInvoiceOSModal}
-        onOpenRecordPaymentModal={handleOpenRecordPaymentModal} // Updated prop
+        onOpenRecordPaymentModal={handleOpenRecordPaymentModal}
         onEditVehicle={handleEditVehicle}
         onSetVehicleStatus={handleSetVehicleStatus}
         onSetSupplierStatus={handleSetSupplierStatus}
