@@ -24,7 +24,8 @@ export interface FuelingHistoryItem {
 export const VEHICLE_STATUSES = [
   "Ativo",
   "Em Manutenção",
-  "Inativo",
+  "Inativo"
+  // "Vendido" // Removed
 ] as const;
 
 export type VehicleStatus = typeof VEHICLE_STATUSES[number]; // Ensure type is derived

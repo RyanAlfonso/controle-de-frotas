@@ -14,9 +14,11 @@ interface MainApplicationProps {
   setActiveSection: (section: string) => void;
   pageTitle: string;
   onLogout: () => void;
+  // theme: 'light' | 'dark'; // Removed theme prop
+  // onToggleTheme: () => void; // Removed onToggleTheme prop
 
   // Data props
-  vehicles: Vehicle[]; // Already present, ensure it's passed for OS modal
+  vehicles: Vehicle[];
   users: User[];
   suppliers: Supplier[];
   serviceOrders: ServiceOrder[]; // Add serviceOrders prop
@@ -44,6 +46,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   setActiveSection,
   pageTitle,
   onLogout,
+  // theme, // Removed theme prop
+  // onToggleTheme, // Removed onToggleTheme prop
+=======
   vehicles,
   users,
   suppliers,
@@ -70,8 +75,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
       case 'dashboard':
         return (
           <DashboardSection
-            vehicles={vehicles} // Pass the full vehicles array
+            vehicles={vehicles}
             serviceOrders={serviceOrders}
+            suppliers={suppliers} // Pass suppliers to DashboardSection
             // fleetStatusData will be derived or passed if more complex
           />
         );
@@ -132,10 +138,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           />
         );
       default:
-        return <DashboardSection /* Default to dashboard or a placeholder */
-            vehicles={vehicles} // Pass vehicles here too
-            serviceOrders={serviceOrders} // And serviceOrders
-            // pendingOS={pendingOSCount} // Remove pendingOSCount from default case too
+        return <DashboardSection
+            vehicles={vehicles}
+            serviceOrders={serviceOrders}
+            suppliers={suppliers} // Also pass suppliers in default case
         />;
     }
   };
@@ -148,6 +154,14 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         activeSection={activeSection}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
+        <Header
+          pageTitle={pageTitle}
+          onLogout={onLogout}
+          // theme={theme} // Removed theme prop
+          // onToggleTheme={onToggleTheme} // Removed onToggleTheme prop
+        />
+        <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
+=======
         <Header pageTitle={pageTitle} />
         <main className="flex-1 p-6 overflow-y-auto bg-slate-100">
           {renderSection()}

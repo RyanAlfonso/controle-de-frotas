@@ -220,7 +220,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                     <td className="p-4 text-slate-600">{getUserName(order.requesterId)}</td>
                     <td className="p-4 text-center text-slate-600">{order.budgets?.length || 0}</td> {/* Added budget count cell */}
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`whitespace-nowrap px-2.5 py-1 text-xs font-semibold rounded-full ${ // Added whitespace-nowrap
                         order.status === 'Pendente de Orçamento' ? 'bg-yellow-100 text-yellow-800' :
                         order.status === 'Aguardando Aprovação' ? 'bg-blue-100 text-blue-800' :
                         order.status === 'Aprovada - Aguardando Execução' ? 'bg-sky-100 text-sky-800' :
@@ -247,10 +247,11 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                         <span className="text-xs text-slate-500">N/A</span>
                       )}
                     </td>
-                    <td className="p-4 text-slate-600 space-x-1">
-                      {((order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && !order.budgets?.some(b => b.isApproved)) && (
-                        <button
-                          onClick={() => onOpenAddOSBudgetModal(order.id)}
+                    <td className="p-4 text-slate-600"> {/* Removed space-x-1, will use flex properties */}
+                      <div className="flex items-center space-x-1"> {/* Flex container for buttons */}
+                        {((order.status === 'Pendente de Orçamento' || order.status === 'Aguardando Aprovação') && !order.budgets?.some(b => b.isApproved)) && (
+                          <button
+                            onClick={() => onOpenAddOSBudgetModal(order.id)}
                           title="Adicionar Orçamento"
                           className="px-2 py-1 text-xs font-medium rounded-md transition-colors text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
                         >
@@ -302,6 +303,7 @@ const ServiceOrdersSection: React.FC<ServiceOrdersSectionProps> = ({
                           Reg. Pagto.
                         </button>
                       )}
+                      </div> {/* Closing the flex container div */}
                     </td>
                   </tr>
                 ))}
