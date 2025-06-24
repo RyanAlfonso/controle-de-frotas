@@ -16,8 +16,8 @@ import {
   ServiceOrder, ServiceOrderStatus, ServiceOrderBudget, MaintenanceHistoryItem, OSPayment, OSPaymentStatus // Import OSPayment types
 } from './types';
 
-// Define Theme type
-type Theme = 'light' | 'dark';
+// Define Theme type - REMOVING
+// type Theme = 'light' | 'dark';
 
 // Placeholder for Chart.js type, if not globally declared elsewhere accessible
 // declare var Chart: any;
@@ -382,34 +382,34 @@ function App() {
   const [isRecordPaymentModalOpen, setIsRecordPaymentModalOpen] = useState(false); // State for RecordPaymentModal
   const [currentOSToRecordPayment, setCurrentOSToRecordPayment] = useState<ServiceOrder | null>(null); // State for OS to record payment
 
-  // Theme state
-  const [theme, setTheme] = useState<Theme>(() => {
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      return storedTheme;
-    }
-    // Optional: Check system preference
-    // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    //   return 'dark';
-    // }
-    return 'light'; // Default theme
-  });
+  // Theme state and logic REMOVED
+  // const [theme, setTheme] = useState<Theme>(() => {
+  //   const storedTheme = localStorage.getItem('theme') as Theme | null;
+  //   if (storedTheme === 'light' || storedTheme === 'dark') {
+  //     return storedTheme;
+  //   }
+  //   // Optional: Check system preference
+  //   // if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  //   //   return 'dark';
+  //   // }
+  //   return 'light'; // Default theme
+  // });
 
-  // Effect to apply theme class and update localStorage
-  useEffect(() => {
-    const root = document.documentElement; // <html> tag
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+  // Effect to apply theme class and update localStorage - REMOVED
+  // useEffect(() => {
+  //   const root = document.documentElement; // <html> tag
+  //   if (theme === 'dark') {
+  //     root.classList.add('dark');
+  //   } else {
+  //     root.classList.remove('dark');
+  //   }
+  //   localStorage.setItem('theme', theme);
+  // }, [theme]);
 
-  // Toggle theme function
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
+  // Toggle theme function - REMOVED
+  // const toggleTheme = () => {
+  //   setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+  // };
 
   const titleMap: Record<string, string> = {
     'dashboard': 'Dashboard',
@@ -827,10 +827,10 @@ function App() {
         setActiveSection={handleNavigate}
         pageTitle={pageTitle}
         onLogout={handleLogout}
-        theme={theme} // Pass theme
-        onToggleTheme={toggleTheme} // Pass toggle function
+        // theme={theme} // Removed theme prop
+        // onToggleTheme={toggleTheme} // Removed onToggleTheme prop
         // Pass data and modal controls down
-        vehicles={vehicles} // Pass vehicles for Dashboard & AddServiceOrderModal
+        vehicles={vehicles}
         users={users}
         suppliers={suppliers} // Pass suppliers for Dashboard
         serviceOrders={serviceOrders} // Pass serviceOrders for Dashboard

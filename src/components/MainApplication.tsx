@@ -14,11 +14,11 @@ interface MainApplicationProps {
   setActiveSection: (section: string) => void;
   pageTitle: string;
   onLogout: () => void;
-  theme: 'light' | 'dark'; // Added theme prop
-  onToggleTheme: () => void; // Added onToggleTheme prop
+  // theme: 'light' | 'dark'; // Removed theme prop
+  // onToggleTheme: () => void; // Removed onToggleTheme prop
 
   // Data props
-  vehicles: Vehicle[]; // Already present, ensure it's passed for OS modal
+  vehicles: Vehicle[];
   users: User[];
   suppliers: Supplier[];
   serviceOrders: ServiceOrder[]; // Add serviceOrders prop
@@ -46,8 +46,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
   setActiveSection,
   pageTitle,
   onLogout,
-  theme, // Destructure theme
-  onToggleTheme, // Destructure onToggleTheme
+  // theme, // Removed theme prop
+  // onToggleTheme, // Removed onToggleTheme prop
   vehicles,
   users,
   suppliers,
@@ -156,8 +156,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({
         <Header
           pageTitle={pageTitle}
           onLogout={onLogout}
-          theme={theme}
-          onToggleTheme={onToggleTheme}
+          // theme={theme} // Removed theme prop
+          // onToggleTheme={onToggleTheme} // Removed onToggleTheme prop
         />
         <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
           {renderSection()}

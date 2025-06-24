@@ -1,12 +1,10 @@
 import React from 'react';
 
-import ThemeToggleButton from './ThemeToggleButton'; // Import ThemeToggleButton
+// import ThemeToggleButton from './ThemeToggleButton'; // Removed ThemeToggleButton import
 
 interface HeaderProps {
   pageTitle: string;
   onLogout: () => void;
-  theme: 'light' | 'dark';
-  onToggleTheme: () => void;
   userName?: string;
   userInitials?: string;
 }
@@ -14,8 +12,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   pageTitle,
   onLogout,
-  theme,
-  onToggleTheme,
   userName = "Admin Master",
   userInitials = "AM"
 }) => {
@@ -34,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          <ThemeToggleButton currentTheme={theme} onToggleTheme={onToggleTheme} />
+          {/* <ThemeToggleButton currentTheme={theme} onToggleTheme={onToggleTheme} /> */} {/* Removed ThemeToggleButton component */}
 
           <button
             onClick={onLogout}
