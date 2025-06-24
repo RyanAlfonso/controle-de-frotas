@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ServiceOrderBudget, Supplier } from '../types';
 
-type BudgetFormData = Omit<ServiceOrderBudget, 'id'>;
+// Allow budgetValue to be string for form state to handle empty input
+type BudgetFormDataInternal = Omit<ServiceOrderBudget, 'id' | 'budgetValue'> & {
+  budgetValue: number | '';
+};
 
 interface AddOSBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: BudgetFormData) => void;
+  onSave: (data: Omit<ServiceOrderBudget, 'id'>) => void; // Externally, it's always number
   suppliers: Supplier[];
 }
 
-const initialFormData: BudgetFormData = {
+const initialFormData: BudgetFormDataInternal = {
   supplierId: '',
-  budgetValue: 0,
+  budgetValue: '', // Changed to empty string
   estimatedDeadline: '',
   budgetNotes: '',
 };
@@ -23,11 +26,12 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
   onSave,
   suppliers,
 }) => {
-  const [formData, setFormData] = useState<BudgetFormData>(initialFormData);
+  const [formData, setFormData] = useState<BudgetFormDataInternal>(initialFormData);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(initialFormData); // Reset form when modal opens
+      // When modal opens, reset to initial (empty budget value)
+      setFormData(initialFormData);
     }
   }, [isOpen]);
 
@@ -35,18 +39,35 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    // Check if the input is a number type and parse it, otherwise use the value directly
-    const processedValue = type === 'number' ? parseFloat(value) || 0 : value;
-    setFormData(prev => ({ ...prev, [name]: processedValue }));
+    if (name === 'budgetValue') {
+      // Allow empty string for budgetValue, or a valid number string
+      if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.supplierId || formData.budgetValue <= 0 || !formData.estimatedDeadline) {
-      alert('Por favor, preencha todos os campos obrigatórios: Fornecedor, Valor do Orçamento e Prazo Estimado.');
+    const budgetValueAsNumber = parseFloat(formData.budgetValue.toString());
+
+    if (formData.budgetValue === '' || isNaN(budgetValueAsNumber) || budgetValueAsNumber <= 0) {
+      alert('Por favor, preencha o Valor do Orçamento com um número maior que zero.');
       return;
     }
-    onSave(formData);
+    if (!formData.supplierId || !formData.estimatedDeadline) {
+      alert('Por favor, preencha todos os campos obrigatórios: Fornecedor e Prazo Estimado.');
+      return;
+    }
+
+    const dataToSave: Omit<ServiceOrderBudget, 'id'> = {
+      ...formData,
+      budgetValue: budgetValueAsNumber,
+    };
+
+    onSave(dataToSave);
     onClose();
   };
 
@@ -98,15 +119,15 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
             </div>
 
             <div>
-              <label htmlFor="estimatedDeadline" className="block text-xs font-medium text-slate-500">Prazo Estimado*</label>
+              <label htmlFor="estimatedDeadline" className="block text-xs font-medium text-slate-500">Prazo Estimado (Data)*</label>
               <input
-                type="text"
+                type="date" // Changed to date type
                 name="estimatedDeadline"
                 id="estimatedDeadline"
-                value={formData.estimatedDeadline}
+                value={formData.estimatedDeadline} // Should be in YYYY-MM-DD format for value
                 onChange={handleChange}
                 required
-                placeholder="Ex: 5 dias úteis, 24/12/2024"
+                // placeholder is not typically shown for type="date"
                 className="mt-1 px-3 py-2 border border-slate-300 bg-white text-slate-800 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition w-full"
               />
             </div>

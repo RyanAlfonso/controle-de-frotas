@@ -272,7 +272,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         <KPI_Card title="Frota Total" value={totalVehicles} bgColorClass="bg-blue-500" />
         <KPI_Card title="Veículos Ativos" value={vehicleStatusCounts['Ativo'] || 0} bgColorClass="bg-teal-500" />
         <KPI_Card title="Em Manutenção" value={vehicleStatusCounts['Em Manutenção'] || 0} bgColorClass="bg-orange-500" />
-        <KPI_Card title="OS Ativas" value={totalActiveServiceOrders} bgColorClass="bg-yellow-500" />
+        <KPI_Card title="Total de OS" value={serviceOrders.length} bgColorClass="bg-yellow-500" /> {/* Changed title and value */}
       </div>
 
       {/* Charts Section - Updated Grid Wrapper for 3 charts */}
