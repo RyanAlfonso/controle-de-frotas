@@ -74,8 +74,9 @@ const MainApplication: React.FC<MainApplicationProps> = ({
       case 'dashboard':
         return (
           <DashboardSection
-            vehicles={vehicles} // Pass the full vehicles array
+            vehicles={vehicles}
             serviceOrders={serviceOrders}
+            suppliers={suppliers} // Pass suppliers to DashboardSection
             // fleetStatusData will be derived or passed if more complex
           />
         );
@@ -136,10 +137,10 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           />
         );
       default:
-        return <DashboardSection /* Default to dashboard or a placeholder */
-            vehicles={vehicles} // Pass vehicles here too
-            serviceOrders={serviceOrders} // And serviceOrders
-            // pendingOS={pendingOSCount} // Remove pendingOSCount from default case too
+        return <DashboardSection
+            vehicles={vehicles}
+            serviceOrders={serviceOrders}
+            suppliers={suppliers} // Also pass suppliers in default case
         />;
     }
   };

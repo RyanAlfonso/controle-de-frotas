@@ -5,8 +5,10 @@ import {
   Vehicle,
   VehicleStatus,
   VEHICLE_STATUSES,
-  ServiceOrderStatus, // Import ServiceOrderStatus
-  SERVICE_ORDER_STATUSES // Import SERVICE_ORDER_STATUSES
+  ServiceOrderStatus,
+  SERVICE_ORDER_STATUSES,
+  Supplier, // Added Supplier
+  SupplierStatus // Added SupplierStatus
 } from '../types';
 
 // Placeholder for Chart.js type
@@ -29,14 +31,16 @@ const KPI_Card: React.FC<KPIProps> = ({ title, value, bgColorClass }) => (
 );
 
 interface DashboardSectionProps {
-  vehicles: Vehicle[]; // Changed to receive full vehicles array
+  vehicles: Vehicle[];
   serviceOrders: ServiceOrder[];
+  suppliers: Supplier[]; // Added suppliers prop
   // fleetStatusData: ChartData;
 }
 
 const DashboardSection: React.FC<DashboardSectionProps> = ({
-  vehicles, // Destructure vehicles
+  vehicles,
   serviceOrders,
+  suppliers, // Destructure suppliers
   // fleetStatusData
 }) => {
   const totalVehicles = vehicles.length;
@@ -58,28 +62,38 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     return acc;
   }, {} as Record<ServiceOrderStatus, number>);
 
+  // Ensure all statuses have a count, default to 0
+  const completeOsStatusCounts = SERVICE_ORDER_STATUSES.reduce((acc, status) => {
+    acc[status] = osStatusCounts[status] || 0;
+    return acc;
+  }, {} as Record<ServiceOrderStatus, number>);
+
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<any>(null);
 
   const osChartRef = useRef<HTMLCanvasElement>(null); // New ref for OS chart
   const osChartInstanceRef = useRef<any>(null); // New ref for OS chart instance
 
-  // Example: Derive fleetStatusData from props or internal state if not passed directly
-  // This is a simplified version based on the counts passed
+  const supplierChartRef = useRef<HTMLCanvasElement>(null); // New ref for Supplier chart
+  const supplierChartInstanceRef = useRef<any>(null); // New ref for Supplier chart instance
+
+  // --- Data Derivation for Charts ---
+
+  // Vehicle Status Data
   const derivedFleetStatusData: ChartData = {
-    labels: ['Ativos', 'Em Manutenção', 'Inativos', 'Vendidos'], // Updated labels
+    labels: ['Ativos', 'Em Manutenção', 'Inativos'], // Updated labels
     datasets: [{
         data: [
             vehicleStatusCounts['Ativo'] || 0,
             vehicleStatusCounts['Em Manutenção'] || 0,
             vehicleStatusCounts['Inativo'] || 0,
-            vehicleStatusCounts['Vendido'] || 0,
+            // vehicleStatusCounts['Vendido'] || 0, // Removed
         ],
         backgroundColor: [
             'rgba(13, 148, 136, 0.8)', // Ativo - Teal
             'rgba(249, 115, 22, 0.8)',  // Em Manutenção - Orange
             'rgba(100, 116, 139, 0.8)', // Inativo - Slate
-            'rgba(239, 68, 68, 0.8)'    // Vendido - Red (example)
+            // 'rgba(239, 68, 68, 0.8)'    // Vendido - Red (example) // Removed
         ],
         borderColor: '#ffffff',
         borderWidth: 4,
@@ -87,11 +101,11 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     }]
   };
 
-  // Prepare data for the OS Status Doughnut Chart
+  // OS Status Data
   const derivedOSStatusData: ChartData = {
-    labels: SERVICE_ORDER_STATUSES as unknown as string[],
+    labels: SERVICE_ORDER_STATUSES as unknown as string[], // Keep as is, Chart.js handles labels
     datasets: [{
-      data: SERVICE_ORDER_STATUSES.map(status => osStatusCounts[status] || 0),
+      data: SERVICE_ORDER_STATUSES.map(status => completeOsStatusCounts[status]), // Use completeOsStatusCounts
       backgroundColor: [
         'rgba(251, 191, 36, 0.8)', // Pendente de Orçamento - Amber
         'rgba(59, 130, 246, 0.8)',  // Aguardando Aprovação - Blue
@@ -106,6 +120,25 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       hoverOffset: 8
     }]
   };
+
+  // Supplier Status Data
+  const activeSuppliers = suppliers.filter(s => s.status === 'Ativo').length;
+  const inactiveSuppliers = suppliers.filter(s => s.status === 'Inativo').length;
+
+  const derivedSupplierStatusData: ChartData = {
+    labels: ['Fornecedores Ativos', 'Fornecedores Inativos'],
+    datasets: [{
+      data: [activeSuppliers, inactiveSuppliers],
+      backgroundColor: [
+        'rgba(34, 197, 94, 0.8)', // Ativo - Green-500
+        'rgba(100, 116, 139, 0.8)', // Inativo - Slate-500
+      ],
+      borderColor: '#ffffff',
+      borderWidth: 4,
+      hoverOffset: 8
+    }]
+  };
+
 
   useEffect(() => {
     if (chartRef.current && derivedFleetStatusData) {
@@ -152,44 +185,27 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
           osChartInstanceRef.current.destroy();
         }
         osChartInstanceRef.current = new Chart(ctx, {
-          type: 'bar', // Changed to 'bar'
+          type: 'doughnut', // Changed to 'doughnut'
           data: derivedOSStatusData,
           options: {
             responsive: true,
-            maintainAspectRatio: false, // Keep this for sizing within container
-            indexAxis: 'x',
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  stepSize: 1, // Ensure y-axis ticks are integers for counts
-                  color: '#64748b', // Example: slate-500 for y-axis labels
-                },
-                grid: {
-                  borderColor: '#e2e8f0', // Example: slate-200 for y-axis grid lines
-                  color: '#f1f5f9' // Example: slate-100 for y-axis grid lines color
-                }
-              },
-              x: {
-                ticks: {
-                  color: '#64748b', // Example: slate-500 for x-axis labels
-                },
-                grid: {
-                  display: false, // Often cleaner to hide x-axis grid lines for bar charts
-                }
-              }
-            },
+            maintainAspectRatio: false,
+            cutout: '70%', // Same as vehicle chart
             plugins: {
               legend: {
-                position: 'bottom', // Or 'top', or display: false
-                labels: { color: '#475569', padding: 20, font: { size: 12 } }
+                position: 'bottom',
+                labels: {
+                  color: '#475569',
+                  padding: 20,
+                  font: { size: 12 }
+                }
               },
-              title: {
+              title: { // Optional: Add a title if desired, or remove if redundant with card title
                 display: true,
-                text: 'Contagem de OS por Status', // Updated title
-                color: '#334155',
-                font: { size: 16, weight: '600' as '600' },
-                padding: { top: 10, bottom: 20 }
+                text: 'Ordens de Serviço por Status', // Title for the chart
+                color: '#334155', // slate-700
+                font: { size: 14, weight: '500' as '500' }, // Adjusted font
+                padding: { top: 5, bottom: 15 }
               }
             }
           }
@@ -204,6 +220,51 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     };
   }, [derivedOSStatusData]); // Re-run if OS data changes
 
+  // useEffect for Supplier Status Doughnut Chart
+  useEffect(() => {
+    if (supplierChartRef.current && derivedSupplierStatusData) {
+      const ctx = supplierChartRef.current.getContext('2d');
+      if (ctx) {
+        if (supplierChartInstanceRef.current) {
+          supplierChartInstanceRef.current.destroy();
+        }
+        supplierChartInstanceRef.current = new Chart(ctx, {
+          type: 'doughnut',
+          data: derivedSupplierStatusData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: '#475569',
+                  padding: 20,
+                  font: { size: 12 }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Status dos Fornecedores',
+                color: '#334155',
+                font: { size: 14, weight: '500' as '500' },
+                padding: { top: 5, bottom: 15 }
+              }
+            }
+          }
+        });
+      }
+    }
+    return () => {
+      if (supplierChartInstanceRef.current) {
+        supplierChartInstanceRef.current.destroy();
+        supplierChartInstanceRef.current = null;
+      }
+    };
+  }, [derivedSupplierStatusData]); // Re-run if supplier data changes
+
+
   return (
     <section id="dashboard-section" className="page-section">
       {/* KPI Cards */}
@@ -214,8 +275,8 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         <KPI_Card title="OS Ativas" value={totalActiveServiceOrders} bgColorClass="bg-yellow-500" />
       </div>
 
-      {/* Charts Section - New Grid Wrapper */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Charts Section - Updated Grid Wrapper for 3 charts */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* Fleet Chart Card - Item 1 */}
         <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
@@ -227,9 +288,17 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 
         {/* OS Status Chart Card - Item 2 */}
         <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Ordens de Serviço por Status</h3>
+          {/* Title is now part of chart options */}
           <div className="chart-container" style={{ height: '300px' }}>
             <canvas ref={osChartRef} id="osStatusChart"></canvas>
+          </div>
+        </div>
+
+        {/* Supplier Status Chart Card - Item 3 */}
+        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
+          {/* Title is part of chart options */}
+          <div className="chart-container" style={{ height: '300px' }}>
+            <canvas ref={supplierChartRef} id="supplierStatusChart"></canvas>
           </div>
         </div>
 

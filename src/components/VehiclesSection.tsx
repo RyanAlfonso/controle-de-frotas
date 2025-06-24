@@ -146,7 +146,7 @@ const VehiclesSection: React.FC<VehiclesSectionProps> = ({ vehicles, onAddVehicl
               <option value="Ativo">Ativo</option>
               <option value="Em Manutenção">Em Manutenção</option>
               <option value="Inativo">Inativo</option>
-              <option value="Vendido">Vendido</option>
+              {/* <option value="Vendido">Vendido</option> */} {/* Removed */}
             </select>
           </div>
         </div>

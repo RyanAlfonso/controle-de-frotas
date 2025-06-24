@@ -723,10 +723,10 @@ function App() {
         theme={theme} // Pass theme
         onToggleTheme={toggleTheme} // Pass toggle function
         // Pass data and modal controls down
-        vehicles={vehicles} // Pass vehicles for AddServiceOrderModal
+        vehicles={vehicles} // Pass vehicles for Dashboard & AddServiceOrderModal
         users={users}
-        suppliers={suppliers}
-        serviceOrders={serviceOrders} // Pass serviceOrders
+        suppliers={suppliers} // Pass suppliers for Dashboard
+        serviceOrders={serviceOrders} // Pass serviceOrders for Dashboard
         pendingOSCount={pendingOS.length} // This might be derived from serviceOrders later
         onOpenVehicleModal={() => setIsVehicleModalOpen(true)}
         onOpenUserModal={() => setIsUserModalOpen(true)}
