@@ -229,6 +229,99 @@ const initialServiceOrders: ServiceOrder[] = [
     status: 'Aguardando Aprovação',
     budgets: [],
     payments: []
+  },
+  {
+    id: 'os_sample_3',
+    vehicleId: 'v3', // Onix Em Manutenção
+    serviceType: 'Reparo Elétrico',
+    problemDescription: 'Sistema de som parou de funcionar e luzes do painel piscando.',
+    requestDate: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
+    requesterId: 'u1', // Admin Master
+    status: 'Aprovada - Aguardando Execução',
+    budgets: [
+      { id: 'bud_s3_1', supplierId: 'sup1', budgetValue: 450.00, estimatedDeadline: new Date(Date.now() + 86400000 * 2).toISOString(), budgetNotes: 'Diagnóstico e reparo do chicote.', isApproved: true }
+    ],
+    supplierId: 'sup1',
+    cost: 450.00,
+    payments: []
+  },
+  {
+    id: 'os_sample_4',
+    vehicleId: 'v4', // Civic Ativo
+    serviceType: 'Funilaria e Pintura',
+    problemDescription: 'Arranhão profundo na porta traseira direita e para-choque amassado.',
+    requestDate: new Date(Date.now() - 86400000 * 10).toISOString(), // 10 days ago
+    requesterId: 'u1',
+    status: 'Em Andamento',
+    budgets: [
+      { id: 'bud_s4_1', supplierId: 'sup3', budgetValue: 1200.00, estimatedDeadline: new Date(Date.now() + 86400000 * 7).toISOString(), budgetNotes: 'Reparo e pintura da porta e para-choque.', isApproved: true }
+    ],
+    supplierId: 'sup3',
+    cost: 1200.00,
+    startDate: new Date(Date.now() - 86400000 * 2).toISOString(), // Started 2 days ago
+    payments: []
+  },
+  {
+    id: 'os_sample_5',
+    vehicleId: 'v5', // Corolla Ativo
+    serviceType: 'Troca de Pneus',
+    problemDescription: 'Dois pneus dianteiros gastos, necessitando substituição e alinhamento.',
+    requestDate: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+    requesterId: 'u1',
+    status: 'Concluída',
+    budgets: [
+      { id: 'bud_s5_1', supplierId: 'sup2', budgetValue: 850.00, estimatedDeadline: new Date(Date.now() - 86400000 * 1).toISOString(), budgetNotes: '2 pneus novos + alinhamento e balanceamento.', isApproved: true }
+    ],
+    supplierId: 'sup2',
+    cost: 850.00,
+    startDate: new Date(Date.now() - 86400000 * 3).toISOString(),
+    completionDate: new Date(Date.now() - 86400000 * 1).toISOString(), // Completed 1 day ago
+    completionNotes: 'Serviço realizado conforme solicitado. Cliente satisfeito.',
+    payments: []
+  },
+  {
+    id: 'os_sample_6',
+    vehicleId: 'v1', // Gol Ativo
+    serviceType: 'Revisão Programada 20.000km',
+    problemDescription: 'Revisão de rotina, troca de óleo, filtros e verificação de itens de segurança.',
+    requestDate: new Date(Date.now() - 86400000 * 7).toISOString(), // 7 days ago
+    requesterId: 'u1',
+    status: 'Faturada',
+    budgets: [
+       { id: 'bud_s6_1', supplierId: 'sup1', budgetValue: 550.00, estimatedDeadline: new Date(Date.now() - 86400000 * 2).toISOString(), isApproved: true }
+    ],
+    supplierId: 'sup1',
+    cost: 550.00,
+    startDate: new Date(Date.now() - 86400000 * 4).toISOString(),
+    completionDate: new Date(Date.now() - 86400000 * 2).toISOString(),
+    invoiceNumber: 'NF-00123',
+    invoiceDueDate: new Date(Date.now() + 86400000 * 28).toISOString(), // Due in 28 days
+    finalValue: 550.00,
+    paymentStatus: 'Pendente',
+    payments: []
+  },
+  {
+    id: 'os_sample_7',
+    vehicleId: 'v6', // Ranger Em Manutenção
+    serviceType: 'Manutenção Corretiva - Suspensão',
+    problemDescription: 'Barulho excessivo na suspensão traseira e instabilidade.',
+    requestDate: new Date(Date.now() - 86400000 * 15).toISOString(), // 15 days ago
+    requesterId: 'u1',
+    status: 'Faturada',
+    budgets: [
+       { id: 'bud_s7_1', supplierId: 'sup1', budgetValue: 1350.00, estimatedDeadline: new Date(Date.now() - 86400000 * 5).toISOString(), isApproved: true }
+    ],
+    supplierId: 'sup1',
+    cost: 1350.00,
+    startDate: new Date(Date.now() - 86400000 * 10).toISOString(),
+    completionDate: new Date(Date.now() - 86400000 * 5).toISOString(),
+    invoiceNumber: 'NF-00124',
+    invoiceDueDate: new Date(Date.now() + 86400000 * 10).toISOString(),
+    finalValue: 1350.00,
+    paymentStatus: 'Pago',
+    payments: [
+        { id: 'pay_s7_1', paymentDate: new Date(Date.now() - 86400000 * 2).toISOString(), paidAmount: 1350.00, paymentMethod: 'PIX', notes: 'Pagamento integral via PIX.'}
+    ]
   }
 ];
 
