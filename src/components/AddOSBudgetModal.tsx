@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ServiceOrderBudget, Supplier } from '../types';
 
-// Allow budgetValue to be string for form state to handle empty input
-type BudgetFormDataInternal = Omit<ServiceOrderBudget, 'id' | 'budgetValue'> & {
-  budgetValue: number | '';
+// budgetValue will be string in form state, converted to number on save.
+type BudgetFormState = Omit<ServiceOrderBudget, 'id' | 'budgetValue'> & {
+  budgetValue: string; // Changed to string
 };
 
 interface AddOSBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<ServiceOrderBudget, 'id'>) => void; // Externally, it's always number
+  onSave: (data: Omit<ServiceOrderBudget, 'id'>) => void; // Externally, budgetValue is always number
   suppliers: Supplier[];
 }
 
-const initialFormData: BudgetFormDataInternal = {
+const initialFormData: BudgetFormState = {
   supplierId: '',
-  budgetValue: '', // Changed to empty string
+  budgetValue: '', // Remains empty string
   estimatedDeadline: '',
   budgetNotes: '',
 };
@@ -26,7 +26,7 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
   onSave,
   suppliers,
 }) => {
-  const [formData, setFormData] = useState<BudgetFormDataInternal>(initialFormData);
+  const [formData, setFormData] = useState<BudgetFormState>(initialFormData);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,10 +38,10 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target; // Removed 'type' as it's less critical now for budgetValue
     if (name === 'budgetValue') {
-      // Allow empty string for budgetValue, or a valid number string
-      if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+      // Allow empty string or a string that represents a valid start of a number
+      if (value === '' || /^[0-9]*\.?[0-9]{0,2}$/.test(value)) { // Regex allows up to 2 decimal places
         setFormData(prev => ({ ...prev, [name]: value }));
       }
     } else {
@@ -51,7 +51,8 @@ const AddOSBudgetModal: React.FC<AddOSBudgetModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const budgetValueAsNumber = parseFloat(formData.budgetValue.toString());
+    // formData.budgetValue is a string here
+    const budgetValueAsNumber = parseFloat(formData.budgetValue);
 
     if (formData.budgetValue === '' || isNaN(budgetValueAsNumber) || budgetValueAsNumber <= 0) {
       alert('Por favor, preencha o Valor do Orçamento com um número maior que zero.');
