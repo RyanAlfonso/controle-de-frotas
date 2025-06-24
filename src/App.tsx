@@ -40,6 +40,113 @@ const initialVehicles: Vehicle[] = [
       ]
     },
     { id: 'v3', marca: 'Chevrolet', modelo: 'Onix', ano: 2021, cor: 'Preto', placa: 'PBR-3C45', renavam: '12345678903', chassi: '9BGZZZ377VT123458', status: 'Em Manutenção', km: 32000, initialMileage: 15000, maintenanceHistory: [], fuelingHistory: [] },
+    {
+      id: 'v4',
+      marca: 'Honda',
+      modelo: 'Civic',
+      ano: 2020,
+      cor: 'Cinza Grafite',
+      placa: 'XYZ-1D23',
+      renavam: '23456789012',
+      chassi: '8AHFB2F57L312345',
+      status: 'Ativo',
+      km: 45000,
+      initialMileage: 500,
+      maintenanceHistory: [
+        { date: new Date(Date.now() - 86400000 * 180).toISOString(), type: 'Revisão', description: 'Revisão de 40.000km, troca de óleo e filtros.', cost: 750, supplier: 'Honda Serviços Avançados', os: 'os_m_v4_1' },
+      ],
+      fuelingHistory: [
+        { id: 'fh1_v4', date: new Date(Date.now() - 86400000 * 25).toISOString(), fuelType: 'Gasolina Aditivada', liters: 40, pricePerLiter: 5.90, totalCost: 236.00, mileage: 44500, stationName: 'Posto Ipiranga Prime' },
+        { id: 'fh2_v4', date: new Date(Date.now() - 86400000 * 10).toISOString(), fuelType: 'Gasolina Comum', liters: 38, pricePerLiter: 5.60, totalCost: 212.80, mileage: 44900, stationName: 'Posto Shell Select' },
+      ]
+    },
+    {
+      id: 'v5',
+      marca: 'Toyota',
+      modelo: 'Corolla',
+      ano: 2022,
+      cor: 'Prata Metálico',
+      placa: 'QWE-2E34',
+      renavam: '34567890123',
+      chassi: '7JTDX11R2N012345',
+      status: 'Ativo',
+      km: 22000,
+      initialMileage: 150,
+      maintenanceHistory: [],
+      fuelingHistory: [
+        { id: 'fh1_v5', date: new Date(Date.now() - 86400000 * 5).toISOString(), fuelType: 'Gasolina Comum', liters: 42, pricePerLiter: 5.55, totalCost: 233.10, mileage: 21500, stationName: 'Posto Petrobras Grid' },
+      ]
+    },
+    {
+      id: 'v6',
+      marca: 'Ford',
+      modelo: 'Ranger',
+      ano: 2019,
+      cor: 'Azul Belize',
+      placa: 'RTY-3F45',
+      renavam: '45678901234',
+      chassi: '6MEFD2XG5K012345',
+      status: 'Em Manutenção',
+      km: 78000,
+      initialMileage: 10000,
+      maintenanceHistory: [
+        { date: new Date(Date.now() - 86400000 * 30).toISOString(), type: 'Troca de Suspensão', description: 'Substituição dos amortecedores dianteiros.', cost: 1200, supplier: 'Oficina do Zé - Pesados', os: 'os_m_v6_1' },
+      ],
+      fuelingHistory: [
+        { id: 'fh1_v6', date: new Date(Date.now() - 86400000 * 40).toISOString(), fuelType: 'Diesel S10', liters: 60, pricePerLiter: 6.00, totalCost: 360.00, mileage: 77500, stationName: 'Posto Agricola' },
+      ]
+    },
+    {
+      id: 'v7',
+      marca: 'Hyundai',
+      modelo: 'HB20',
+      ano: 2023,
+      cor: 'Vermelho Apple',
+      placa: 'UIO-4G56',
+      renavam: '56789012345',
+      chassi: '5NMHCA1ABPH12345',
+      status: 'Ativo',
+      km: 5500,
+      initialMileage: 50,
+      maintenanceHistory: [],
+      fuelingHistory: []
+    },
+    {
+      id: 'v8',
+      marca: 'Renault',
+      modelo: 'Kwid',
+      ano: 2021,
+      cor: 'Laranja Ocre',
+      placa: 'PAS-5H67',
+      renavam: '67890123456',
+      chassi: '4LVLBA1AAXM12345',
+      status: 'Inativo',
+      km: 33000,
+      initialMileage: 200,
+      maintenanceHistory: [],
+      fuelingHistory: [
+          { id: 'fh1_v8', date: new Date(Date.now() - 86400000 * 90).toISOString(), fuelType: 'Gasolina Comum', liters: 30, pricePerLiter: 5.20, totalCost: 156.00, mileage: 32500, stationName: 'Posto Esquina' },
+      ]
+    },
+    {
+      id: 'v9',
+      marca: 'Jeep',
+      modelo: 'Renegade',
+      ano: 2022,
+      cor: 'Verde Recon',
+      placa: 'DFG-6J78',
+      renavam: '78901234567',
+      chassi: '3C4NJDBT1NT12345',
+      status: 'Ativo',
+      km: 28000,
+      initialMileage: 300,
+      maintenanceHistory: [
+          { date: new Date(Date.now() - 86400000 * 60).toISOString(), type: 'Alinhamento e Balanceamento', description: 'Serviço realizado após troca de pneus.', cost: 250, supplier: 'Pneu Forte Centro Automotivo', os: 'os_m_v9_1' },
+      ],
+      fuelingHistory: [
+          { id: 'fh1_v9', date: new Date(Date.now() - 86400000 * 10).toISOString(), fuelType: 'Gasolina Aditivada', liters: 45, pricePerLiter: 5.99, totalCost: 269.55, mileage: 27500, stationName: 'BR Mania' },
+      ]
+    }
 ];
 
 const initialUsers: User[] = [
