@@ -141,7 +141,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({
           pageTitle={pageTitle}
           onLogout={onLogout}
         />
-        <main className="flex-1 p-6 overflow-y-auto bg-slate-100 dark:bg-slate-950 transition-colors duration-150">
+        <main className="flex-1 p-6 overflow-y-auto bg-slate-100 transition-colors duration-150">
           {renderSection()}
         </main>
       </div>
