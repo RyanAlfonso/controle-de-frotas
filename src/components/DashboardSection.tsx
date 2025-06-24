@@ -281,15 +281,15 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* Fleet Chart Card - Item 1 */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Status da Frota</h3>
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Status da Frota</h3>
           <div className="chart-container" style={{ height: '300px' }}>
             <canvas ref={chartRef} id="statusChart"></canvas>
           </div>
         </div>
 
         {/* OS Status Chart Card - Item 2 */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm p-6">
           {/* Title is now part of chart options */}
           <div className="chart-container" style={{ height: '300px' }}>
             <canvas ref={osChartRef} id="osStatusChart"></canvas>
@@ -297,7 +297,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         </div>
 
         {/* Supplier Status Chart Card - Item 3 */}
-        <div className="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-sm p-6">
+        <div className="bg-white border border-slate-200/80 rounded-xl shadow-sm p-6">
           {/* Title is part of chart options */}
           <div className="chart-container" style={{ height: '300px' }}>
             <canvas ref={supplierChartRef} id="supplierStatusChart"></canvas>
